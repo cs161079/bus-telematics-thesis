@@ -1,0 +1,93 @@
+/*  FORM  */
+.container_home {
+  display: flex;
+  flex-direction: column;
+  grid-template-rows: repeat(5, min-content);
+  justify-items: space-between;
+  align-items: center;
+  background: var(--container-bg-color);
+  border-radius: .4rem;
+  box-shadow: 0 0 1.5rem rgba(0,0,0, .25);
+}
+
+.form_home {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  width: inherit;
+
+  @media only screen and (max-width: 790px) {
+    margin: 2rem 4rem .8rem 4rem;
+  }
+
+  &__1 { grid-row: 2 / 3;}
+  &__2 { grid-row: 3 / 4;}
+  &__3 { grid-row: 4 / 5;}
+    &.active label {
+      transform: translateY(-2.2rem);
+      visibility: visible;
+      font-size: 1.3rem;
+      color: #7581FF;
+    }
+
+  &__input {
+    font-size: 1.6rem;
+    padding:  1rem 0;
+    border: none;
+    background: transparent;
+    border-bottom: 2px solid #c1c1c1;
+
+    &:focus { outline: none; border-bottom: 2px solid #c1c1c1;}
+    &:focus:invalid {border-bottom: 2px solid #7581FF;}
+  }
+
+  &__label {
+    font-size: 1.6rem;
+    color: #c1c1c1;
+    position: absolute;
+    top: 1rem;
+    pointer-events: none;
+    transition: all .3s;
+    }
+
+  &__btn {
+    background: #7581FF;
+    color: #fff;
+    border: none;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 1.1rem 0;
+    margin: 25px;
+    cursor: pointer;
+    border-radius: .4rem;
+    box-shadow: 0 .4rem .8rem rgba(0,0,0, .15);
+    overflow: hidden;
+    position: relative;
+    transition: all .2s;
+
+    @media only screen and (max-width: 790px) {
+    margin: 2.8rem 4rem 4rem 4rem;
+  }
+
+    &:focus {outline:0;}
+    &:hover { background-color: #5162fe;}
+    & > * {
+      transition: all .4s;
+      transition-delay: 1s;
+      display: inline-block;}
+
+    &--invisible {
+      position: absolute;
+      width: 100%;
+      left: 0;
+      top: -100%;
+      &.visible {top: 11px;}
+    }
+
+    &--visible{ display: flex;
+      justify-content: center;
+      align-items: center;
+      &.invisible {transform: translateY(200%);}}
+  }
+}

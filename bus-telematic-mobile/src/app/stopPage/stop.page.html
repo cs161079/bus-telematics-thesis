@@ -1,0 +1,90 @@
+<ion-header [translucent]="true">
+  <ion-toolbar style="font-size: 25px;">
+      <ion-buttons slot="start">
+          <ion-button (click)="onBackdrop($event)" style="font-size: 25px;">
+              <ion-icon name="arrow-back-outline"></ion-icon>
+          </ion-button>
+      </ion-buttons>
+      <!-- <ion-buttons slot="end">
+        <ion-button shape="round" (click)="onRefreshClick($event)">
+          <ion-icon name="reload-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons> -->
+      <div *ngIf="loading" style="text-align: center; line-height: 0%;">
+        <h4><ion-skeleton-text [animated]="true" style="width: 80%;"></ion-skeleton-text></h4>
+        <p><ion-skeleton-text [animated]="true" style="width: 60%;"></ion-skeleton-text></p>
+      </div>
+      <div *ngIf="!loading" style="text-align: center; line-height: 20px;">
+        <!-- <h4>{{stopDescr}}</h4> -->
+        <!-- <p>{{stopCode}}</p> -->
+         <ion-text style="font-size: 20px;">{{stopDescr}}</ion-text><br>
+         <ion-text style="font-size: 18px;">{{stopId}}</ion-text>
+      </div>
+      <ion-buttons slot="end">
+          <ion-button (click)="addRemoveFavStop()" style="font-size: 25px;">
+              <ion-icon [ngStyle]="(stopSrv.isFavStop(stopCode) | async) ? {'color': 'red'} : {'color': 'black'}"
+                  [name]="(stopSrv.isFavStop(stopCode) | async) ? 'heart' : 'heart-outline'"
+                ></ion-icon>
+          </ion-button>
+      </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="onRefreshClick($event)">
+    <ion-refresher-content pullingText="Pull to refresh"></ion-refresher-content>
+  </ion-refresher>
+  <ion-list *ngIf="loading">
+    <ion-item *ngFor="let i of [1, 1, 1];">
+      <ion-label>
+        <h3>
+          <ion-skeleton-text [animated]="true" style="width: 80%;"></ion-skeleton-text>
+        </h3>
+        <p>
+          <ion-skeleton-text [animated]="true" style="width: 60%;"></ion-skeleton-text>
+        </p>
+        <p>
+          <ion-skeleton-text [animated]="true" style="width: 30%;"></ion-skeleton-text>
+        </p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+  <ion-list *ngIf="!loading">
+    <ion-item style="--inner-padding-end: 0; --padding-start: 0;" *ngFor="let arrival of arrivals;">
+      <ion-row style="width: 100%; height: auto;">
+        <!-- <ion-col size="2" style="display: flex; align-items: center;">
+          <div style="display: flex; align-items: baseline; border-bottom: solid 4px black; margin-right: 10px;">
+            <img style="width: 14px; height: 14px;" src="../../assets/images/bus.png" />
+            <h4 style="margin: 0;">{{arrival.line_id}}</h4>
+          </div>
+        </ion-col>
+        <ion-col [size]="arrival.time !== 999 ? 7 : 7" style="display: flex; align-items: center;">
+          <div style="font-size: 15px; text-align: left;">{{arrival.route_descr}}</div>
+        </ion-col> -->
+        <ion-col size="9">
+          <app-line [line]="getLineRec(arrival)"></app-line>
+        </ion-col>
+        <ion-col *ngIf="arrival.time !== 999" size="3" style="display: flex; align-items:center; flex-wrap: wrap; text-align: end; text-overflow: ellipsis;white-space: nowrap;">
+          <div class="time-block">
+            <span *ngIf="arrival.time !== 999" [style.color]="arrival.time <= 5 ? '#df0505' : '#2aa537'" style="margin-left: auto; margin-right: auto; font-size: 25px; font-weight: 700;">{{arrival.time}} </span> λεπτ.
+          </div>
+          <div class="time-block">
+            <span *ngIf="arrival.next_time !== 999">& {{arrival.next_time}}</span>
+            <span *ngIf="arrival.last_time !== 999">, {{arrival.last_time}}</span>
+            <span *ngIf="arrival.next_time !== 999 || arrival.last_time !== 999"> λεπτ.</span>
+          </div>
+        </ion-col>
+        <ion-col *ngIf="arrival.time === 999" size="3" style="display: flex; align-items:center; justify-content: space-evenly; text-align: end; text-overflow: ellipsis;white-space: nowrap;">
+          <!-- <span *ngIf="arrival.time === 999" style="margin-left: auto; margin-right: auto; font-size: 25px; font-weight: 700; width: 100%; display: block;text-align: center;">-</span> -->
+           <div style="width: 20px; border-bottom: solid 3px #000 ;"></div>
+        </ion-col>
+        <div class="progress-bar">
+          <div [ngStyle]="{
+            'background-color': getColor(arrival.passenger, arrival.capacity),
+            'width': getPercentage(arrival.passenger, arrival.capacity)
+          }"></div>
+        </div>
+      </ion-row>
+    </ion-item>
+  </ion-list>
+</ion-content>

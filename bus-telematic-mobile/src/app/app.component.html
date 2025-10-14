@@ -1,0 +1,35 @@
+<ion-app>
+  <!-- Button to open side nav -->
+  <!-- <button class="openbtn" (click)="openNav()">☰</button> -->
+   <!-- <button class="openbtn hamburger" (click)="openNav()">
+
+   </button> -->
+   <button #wrapperMenu style="position: absolute;" class="btn wrapper-menu" (click)="toogleNav()">
+    <div class="line-menu half start"></div>
+    <div class="line-menu"></div>
+    <div class="line-menu half end"></div>
+  </button>
+   <div style="z-index: 999; display: flex; padding-top: 20px;">
+    <h5 style="text-align: center; width: -webkit-fill-available;">{{navSrv.activeTitle | async}}</h5>
+   </div>
+
+
+
+  <!-- Side Navigation -->
+  <div #Sidenav class="sidenav menu" style="display: flex;">
+      <!-- <a class="closebtn" (click)="closeNav()">&times;</a> -->
+      <div class="menu-items">
+        <a (click)="navigate('/tabs/tabs/tab1')">Αρχική</a>
+        <a (click)="navigate('/settings')">Ρυθμίσεις</a>
+      </div>
+      <div class="menu-footer">
+        <ion-toolbar style="opacity: 0.5; margin-left: 4px;">
+          <ion-img style="width: 60px;" src="assets/icons/icon-512.webp"></ion-img>
+          <ion-title slot="end" color="medium">{{ appName }} {{ appVersion }}</ion-title>
+        </ion-toolbar>
+      </div>
+  </div>
+  <div class="main-content" (click)="closeNav()">
+    <ion-router-outlet #router></ion-router-outlet>
+  </div>
+</ion-app>

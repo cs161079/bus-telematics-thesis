@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+  name: keycloak
+  namespace: oasa-telemat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      initContainers:
+        - name: wait-mysql
+          image: mysql:8.4
+          env:
+            - name: MYSQL_HOST
+              value: "mysql-svc"   # <-- your MySQL Service DNS
+            - name: MYSQL_PORT
+              value: "3306"
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: root-password
+          command: ["sh","-c"]
+          args:
+            - |
+              set -e
+              export MYSQL_PWD="$MYSQL_ROOT_PASSWORD"
+              until mysqladmin ping -h "$MYSQL_HOST" -P "$MYSQL_PORT" -u root --silent; do
+                echo "🟠 Waiting for MySQL at $MYSQL_HOST:$MYSQL_PORT ..."
+                sleep 2
+              done
+              echo "🟢 MySQL is ready."
+      containers:
+      - args:
+        - start
+        env:
+        - name: KEYCLOAK_ADMIN
+          value: admin
+        - name: KEYCLOAK_ADMIN_PASSWORD
+          value: adminpassword
+        - name: KC_DB
+          value: mysql
+        - name: KC_DB_URL
+          value: jdbc:mysql://mysql-svc:3306/keycloak
+        - name: KC_DB_USERNAME
+          value: user1
+        - name: KC_DB_PASSWORD
+          value: user1password
+        - name: KC_HTTP_RELATIVE_PATH
+          value: /auth
+        - name: KC_HOSTNAME_URL
+          value: https://uat.osses.gr/auth
+        - name: KC_HOSTNAME_STRICT
+          value: "true"
+        - name: KC_PROXY_HEADERS
+          value: xforwarded           # honor X-Forwarded-* headers
+        - name: KC_PROXY
+          value: edge
+        - name: KC_HEALTH_ENABLED
+          value: "true"
+        image: quay.io/keycloak/keycloak:24.0.0
+        imagePullPolicy: IfNotPresent
+        name: keycloak
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        - name: management
+          containerPort: 9000
+          protocol: TCP
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always

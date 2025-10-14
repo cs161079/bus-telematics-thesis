@@ -1,0 +1,312 @@
+/* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+@include mat.core();
+@import "@fortawesome/fontawesome-free/css/all.min.css";
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+// styles.scss
+
+
+
+$light-theme: mat.define-light-theme((
+  color: (
+    primary: mat.define-palette(mat.$indigo-palette),
+    accent: mat.define-palette(mat.$pink-palette),
+  ),
+));
+
+$dark-theme: mat.define-dark-theme((
+  color: (
+    primary: mat.define-palette(mat.$indigo-palette),
+    accent: mat.define-palette(mat.$pink-palette),
+  ),
+));
+
+.light-theme {
+  @include mat.all-component-themes($light-theme);
+  background-color: #ffffff;
+  color: #000000;
+  --container-shadow: rgba(0, 0, 0, .15);
+  --title-bg-color: #f2f2f2;
+  --container-bg-color: #ffffff;
+  --nav-text-color: #406ff3;
+  --nav-background-color: #fff;
+  --nav-drop-text-color: #000;
+  --bs-table-bg: #fff;
+  --bs-table-color: #000;
+}
+
+.dark-theme {
+  @include mat.all-component-themes($dark-theme);
+  background-color: #121212;
+  color: #ffffff;
+  --container-shadow: rgba(216, 215, 215, 0.445);
+  --title-bg-color: #2e2e2e;
+  --container-bg-color: #434242;
+  --nav-text-color: #406ff3;
+  --nav-background-color: #434242;
+  --nav-drop-text-color: #000;
+  --opsw-table-bg: #434242;
+  --opsw-table-color: #fff;
+}
+
+//======================================================================================================================
+//====                                              NAVBAR Style                                     ===================
+//====                                  https://codepen.io/onediv/pen/WNOdMWw                        ===================
+
+$borderRadius: 10px;
+$spacer: 1rem;
+$primary: #406ff3;
+// $text: #6a778e;
+$linkHeight: $spacer * 3.5;
+$timing: 250ms;
+$transition: $timing ease all;
+
+@mixin gooeyEffect($i) {
+  @keyframes gooeyEffect-#{$i} {
+    0% {
+      transform: scale(1, 1);
+    }
+    50% {
+      transform: scale(0.5, 1.5);
+    }
+    100% {
+      transform: scale(1, 1);
+    }
+  }
+}
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@600&display=swap');
+body{
+  background: #eaeef6;
+  font-family: 'Open Sans', sans-serif;
+}
+.navbar{
+  $ref: &;
+  position: fixed;
+  top: $spacer;
+  left: $spacer;
+  background: var(--container-bg-color);
+  border-radius: $borderRadius;
+  padding: $spacer 0;
+  box-shadow: 0 0 40px rgba(0,0,0,0.3);
+  height: calc(100vh - #{$spacer*4});
+  &__link{
+    position:relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: $linkHeight;
+    width: $spacer * 5.5;
+    color: var(--nav-text-color);
+    transition: $transition;
+    // span{
+    //   position: absolute;
+    //   left: 100%;
+    //   transform: translate(-($spacer*3));
+    //   margin-left: 1rem;
+    //   opacity: 0;
+    //   pointer-events: none;
+    //   color: $primary;
+    //   background: #fff;
+    //   padding: $spacer *0.75;
+    //   transition: $transition;
+    //   border-radius: $borderRadius * 1.75;
+    // }
+    &:hover{
+      color: #fff;
+    }
+    .navbar:not(:hover) &:focus,
+    &:hover{
+      span{
+        opacity: 1;
+        transform: translate(0);
+      }
+    }
+  }
+  &__menu{
+    position: relative;
+    padding-left: 0px;
+    list-style-type: none;
+  }
+  &__item{
+    margin: 0 5px;
+    // &:last-child{
+    //   &:before{
+    //     content: '';
+    //     position: absolute;
+    //     opacity: 0;
+    //     z-index: -1;
+    //     top: 0;
+    //     left: $spacer;
+    //     width: $linkHeight;
+    //     height: $linkHeight;
+    //     background: $primary;
+    //     border-radius: $borderRadius * 1.75;
+    //     transition: $timing cubic-bezier(1, 0.2, 0.1, 1.2) all;
+
+    //   }
+    // }
+
+    // @for $i from 1 to 12 {
+    //   &:first-child:nth-last-child(#{$i}),
+    //   &:first-child:nth-last-child(#{$i}) ~ li {
+    //     &:hover {
+    //       ~ li:last-child:before {
+    //         opacity: 1;
+    //       }
+    //     }
+    //     &:last-child:hover:before {
+    //       opacity: 1;
+    //     }
+    //     @for $j from 1 to $i {
+    //       &:nth-child(#{$j}):hover, {
+    //         ~ li:last-child:before {
+    //           @include gooeyEffect($j);
+    //           top: (100% / $i) * ($j - 1);
+    //           animation: gooeyEffect-#{$j} $timing 1;
+    //         }
+    //       }
+    //     }
+    //     &:last-child:hover:before, {
+    //       @include gooeyEffect($i);
+    //       top: (100% / $i) * ($i - 1);
+    //       animation: gooeyEffect-#{$i} $timing 1;
+    //     }
+    //   }
+    // }
+
+  }
+
+}
+
+.center {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.containerCustom {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(min-content, 35rem));
+  grid-template-rows: repeat(5, min-content);
+  justify-items: space-between;
+  align-items: center;
+  background: var(--container-bg-color);
+  border-radius: .4rem;
+  box-shadow: 0 0 1.5rem rgba(0,0,0, .25);
+
+  @media only screen and (max-width: 790px) {
+    grid-template-columns: 50rem;
+    grid-column-rows: repeat(6, min-content);
+  }
+
+  @media only screen and (max-width: 540px) {
+    grid-template-columns: minmax(30rem, 40rem);
+  }
+}
+
+/*  TITLE  */
+.title {
+  grid-row: 1 / 2;
+  grid-column: 1 / 4;
+  padding: 2.8rem 4rem;
+  margin-bottom: 1.4rem;
+  font-size: 3.2rem;
+  // color: #373737;
+  border-radius: .4rem .4rem 0 0;
+  background: var(--title-bg-color);
+  font-weight: 700;
+  text-align: center;
+}
+
+/*  FORM  */
+.form {
+  grid-column: 1 / 2;
+  display: flex;
+  flex-direction: column;
+  margin: 2rem 0 .8rem 4rem;
+  position: relative;
+
+  @media only screen and (max-width: 790px) {
+    margin: 2rem 4rem .8rem 4rem;
+  }
+
+  &__1 { grid-row: 2 / 3;}
+  &__2 { grid-row: 3 / 4;}
+  &__3 { grid-row: 4 / 5;}
+    &.active label {
+      transform: translateY(-2.2rem);
+      visibility: visible;
+      font-size: 1.3rem;
+      color: #7581FF;
+    }
+
+  &__input {
+    font-size: 1.6rem;
+    padding:  1rem 0;
+    border: none;
+    background: transparent;
+    border-bottom: 2px solid #c1c1c1;
+
+    &:focus { outline: none; border-bottom: 2px solid #c1c1c1;}
+    &:focus:invalid {border-bottom: 2px solid #7581FF;}
+  }
+
+  &__label {
+    font-size: 1.6rem;
+    color: #c1c1c1;
+    position: absolute;
+    top: 1rem;
+    pointer-events: none;
+    transition: all .3s;
+    }
+
+  &__btn {
+    grid-column: 1 / 2;
+    grid-row: 5 / 6;
+    background: #7581FF;
+    color: #fff;
+    border: none;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 1.1rem 0 !important;
+    margin: 2.8rem 0 4rem 4rem;
+    cursor: pointer;
+    border-radius: .4rem;
+    box-shadow: 0 .4rem .8rem rgba(0,0,0, .15);
+    overflow: hidden;
+    position: relative;
+    transition: all .2s;
+
+    @media only screen and (max-width: 790px) {
+    margin: 2.8rem 4rem 4rem 4rem;
+  }
+
+    &:focus {outline:0;}
+    &:hover { background-color: #5162fe;}
+    & > * {
+      transition: all .4s;
+      transition-delay: 1s;
+      display: inline-block;}
+
+    &--invisible {
+      position: absolute;
+      width: 100%;
+      left: 0;
+      top: -100%;
+      &.visible {top: 11px;}
+    }
+
+    &--visible{ display: flex;
+      justify-content: center;
+      align-items: center;
+      &.invisible {transform: translateY(200%);}}
+  }
+}
+
+/* Importing Bootstrap SCSS file. */
+@import 'bootstrap/scss/bootstrap';

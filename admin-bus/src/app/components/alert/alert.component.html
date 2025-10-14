@@ -1,0 +1,5 @@
+<div *ngIf="alert" class="customizeAlert alert alert-dismissible fade show" [class.fade-out]="true" [class]="getAlertClass()" role="alert">
+  <!-- <strong>{{alert?.message}}</strong> Your action was completed. -->
+   {{alert.message}}
+  <!-- <button type="button" class="btn-close" (click)="showAlert = false"></button> -->
+</div>

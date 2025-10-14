@@ -1,0 +1,56 @@
+<ion-content [fullscreen]="true">
+  <div class="container-start">
+    <!-- <ion-item style="--inner-padding-end: 0px; --padding-start: 0px; border-radius: 10px;">
+      <ion-input fill="outline" placeholder="Search" [(ngModel)]="searchText" (ionInput)="onSearchChange($event)">
+        <ion-icon name="search" slot="start"></ion-icon>
+        <ion-icon name="close-circle-outline" slot="end" (click)="clearSearch()"></ion-icon>
+      </ion-input>
+    </ion-item> -->
+    <div class="d-flex justify-content-center h-100" style="width: 100%; padding: 0 20px;">
+      <!-- <div class="search">
+        <input #searchRef class="search_input" type="text" name="" placeholder="Search here..." (input)="onInputChange(searchRef.value)">
+        <a href="#" class="search_icon"><i class="fa fa-search"></i></a>
+      </div> -->
+      <ion-searchbar mode="ios" animated="true" placeholder="Search Bus Line" (ionInput)="onInputChange($event)" ></ion-searchbar>
+    </div>
+  </div>
+  <div class="container-middle">
+    <div>
+      <h5 class="title">Πρόσφατες αναζητήσεις</h5>
+    </div>
+    <div class="recent-search-container">
+      <div class="recent-search" *ngFor="let line of lineSrv.recentLinesSub | async;" (click)="onSelectLine(line)">
+        <app-line style="width: max-content;" [line]="line"></app-line>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-end">
+    <div>
+      <h5 class="title line-list-title">Όλες οι γραμμές</h5>
+    </div>
+    <ion-list *ngIf="isLoading">
+      <ion-item *ngFor="let i of skeletonArray;">
+        <ion-thumbnail slot="start">
+          <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+        </ion-thumbnail>
+        <ion-label>
+          <h3>
+            <ion-skeleton-text [animated]="true" style="width: 80%;"></ion-skeleton-text>
+          </h3>
+          <p>
+            <ion-skeleton-text [animated]="true" style="width: 60%;"></ion-skeleton-text>
+          </p>
+          <p>
+            <ion-skeleton-text [animated]="true" style="width: 30%;"></ion-skeleton-text>
+          </p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+    <ion-list *ngIf="!isLoading" class="line-list">
+      <ion-item style="--inner-padding-end: 0px; --inner-padding-start: 0px; height: 60px;;" *ngFor="let line of lines;" (click)="onSelectLine(line)">
+        <app-line [line]="line"></app-line>
+      </ion-item>
+    </ion-list>
+  </div>
+</ion-content>

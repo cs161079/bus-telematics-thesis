@@ -1,0 +1,15 @@
+/* src/app/components/kpi-chart/kpi-chart.component.css */
+.controls {
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px;
+}
+label { display: flex; gap: 6px; align-items: center; }
+button { padding: 6px 10px; border-radius: 8px; border: 1px solid #ddd; background: #fafafa; }
+button:hover { background: #f0f0f0; }
+// #kpi-canvas { max-width: 1100px; }
+/* kpi-chart.component.css */
+#kpi-canvas {
+  width: 100% !important;
+  height: 420px !important;   /* <— fixed height */
+  // max-width: 1100px;
+  display: block;
+}

@@ -1,0 +1,10 @@
+<div style="display: flex; align-items: center;">
+  <div class="line-code-block" [style.border-bottom]="'solid 3px ' + (line.line_type === busType ? '#0054e9' : '#ffb800')">
+    <img *ngIf="line.line_type === busType" style="width: 25px;" src="../../../assets/images/bus_release.png"/>
+    <img *ngIf="line.line_type === trolleyType" style="width: 25px;" src="../../../assets/images/trolley-bus-release.png"/>
+    <span style="margin-left: 5px; width: -webkit-fill-available;">{{line.line_id}}</span>
+  </div>
+  <div class="line-descr">
+    {{line.line_descr}}
+  </div>
+</div>

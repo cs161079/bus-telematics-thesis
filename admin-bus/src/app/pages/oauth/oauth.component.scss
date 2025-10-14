@@ -1,0 +1,106 @@
+.navbar__link:hover {
+    border-radius: 10px;
+    background: #406ff3;
+}
+
+.navbar__link {
+  text-decoration: unset;
+
+}
+
+.opsw_navbar {
+  height: 70px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: -webkit-fill-available;
+  margin: 10px;
+  padding: 0 8px;
+  background-color: var(--nav-background-color);
+}
+
+.opsw_dropdown {
+  background-color: var(--nav-background-color);
+}
+
+.opsw_dropdown-choice {
+  color: var(--nav-drop-text-color);
+  margin: 0 0px;
+  padding: 0 10px;
+  border-radius: 4px;
+  padding: 5px 4px;
+  color: var(--opsw-table-color);
+}
+
+.opsw_dropdown-choice:hover {
+  background-color: #406ff3;
+}
+
+//Fansy toggle Btn
+.toggle-btn.active {
+  background: #e0ffff;
+}
+
+.toggle-btn.active .icon {
+  left: calc(100% - 40px);
+  color: #e0ffff;
+  border: 1px solid #e0ffff;
+  right: -1px !important;
+}
+
+.toggle-btn.active .icon i {
+  animation: spin 0.5s;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(0.5turn);
+  }
+}
+
+@keyframes spin02 {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.toggle-btn {
+  position: relative;
+  height: 30px;
+  width: 70px;
+  background-color: #42455a;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.4s ease;
+}
+
+.toggle-btn .icon i {
+  animation: spin02 0.5s;
+}
+
+.toggle-btn .icon {
+  position: absolute;
+  top: 50%;
+  left: -1px;
+  transform: translateY(-50%);
+  height: 40px;
+  width: 40px;
+  font-size: 30px;
+  color: #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #42455a;
+  border: 1px solid #999;
+  border-radius: 50%;
+  transition: all 0.4s ease;
+}
+
+.dropdown-header {
+  display: block;
+  padding: .5rem 1rem;
+  margin-bottom: 0;
+  font-size: .875rem;
+  color: #6c757d;
+  white-space: nowrap;
+}

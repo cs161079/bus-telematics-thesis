@@ -1,0 +1,30 @@
+<!-- <nav aria-label="Pagination">
+  <ul class="pagination">
+    <li class="page-item" [class.disabled]="page === 1">
+      <button class="page-link" (click)="goFirst()" [attr.aria-label]="'First'">«</button>
+    </li>
+    <li class="page-item" [class.disabled]="page === 1">
+      <button class="page-link" (click)="goPrev()" [attr.aria-label]="'Previous'">‹</button>
+    </li>
+
+    <ng-container *ngFor="let it of (pageItems() as any); trackBy: trackByPageItem;">
+      <li *ngIf="it.kind === 'num'" class="page-item" [class.active]="it.active">
+        <button class="page-link" (click)="setPage(it.value!)">{{ it.value }}</button>
+      </li>
+      <li *ngIf="it.kind === 'ellipsis'" class="page-item disabled">
+        <span class="page-link">…</span>
+      </li>
+    </ng-container>
+
+    <li class="page-item" [class.disabled]="page === pagesCount()">
+      <button class="page-link" (click)="goNext()" [attr.aria-label]="'Next'">›</button>
+    </li>
+    <li class="page-item" [class.disabled]="page === pagesCount()">
+      <button class="page-link" (click)="goLast()" [attr.aria-label]="'Last'">»</button>
+    </li>
+  </ul>
+</nav>
+
+<p class="range-text">
+  Showing {{ startIndex() }} to {{ endIndex() }} of {{ total }} entries
+</p> -->

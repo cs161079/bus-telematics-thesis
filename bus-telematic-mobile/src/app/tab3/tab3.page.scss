@@ -1,0 +1,15 @@
+.backImage {
+  height: 130px;
+  background-image: url('../../assets/images/folder.png');
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  width: -webkit-fill-available;
+  height: 100%;
+  justify-content: space-evenly;
+}

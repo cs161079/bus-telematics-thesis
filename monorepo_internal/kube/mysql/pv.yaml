@@ -1,0 +1,37 @@
+# mysql-pv.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-pv-ext
+  namespace: oasa-telemat
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: hostpath-manual      # a name you choose for this static PV
+  persistentVolumeReclaimPolicy: Retain  # keeps data on host if PVC is deleted
+  nodeAffinity:                          # ensure it binds on the intended node
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values: ["lenovooulisn"]
+  hostPath:
+    path: /srv/ext_data
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-ext-pvc
+  namespace: oasa-telemat
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: hostpath-manual   # must match the PV’s storageClassName
+  volumeName: mysql-pv-ext   

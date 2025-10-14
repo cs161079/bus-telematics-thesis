@@ -1,0 +1,2 @@
+ALTER TABLE bus_capacity
+ADD COLUMN start_datetime DATETIME DEFAULT NULL;

@@ -1,0 +1,26 @@
+<!-- <ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>
+      Tab 1
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="getUserLocation()">
+        <ion-icon name="navigate-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header> -->
+
+<ion-content [fullscreen]="true">
+  <!-- <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Tab 1</ion-title>
+    </ion-toolbar>
+  </ion-header> -->
+  <div class="map-frame">
+    <div id="tab1-map"></div>
+    <ion-button id="refreshButton" color="light" (click)="getUserLocation()">
+      <ion-icon name="locate-outline"></ion-icon>
+    </ion-button>
+  </div>
+</ion-content>

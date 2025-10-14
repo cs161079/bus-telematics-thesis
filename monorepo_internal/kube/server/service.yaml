@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: oasa-server-svc
+  namespace: oasa-telemat
+spec:
+  selector:
+    app: oasa-server
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8081
+  type: ClusterIP

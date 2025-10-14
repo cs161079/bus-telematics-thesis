@@ -1,0 +1,33 @@
+/* basic bootstrap-like look without dependency */
+.pagination {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: .25rem 0;
+  gap: .25rem;
+  flex-wrap: wrap;              /* wrap when narrow */
+}
+
+.page-item {}
+.page-item.disabled .page-link { pointer-events: none; opacity: .5; }
+.page-item.active .page-link { font-weight: 600; border-color: currentColor; }
+
+.page-link {
+  border: 1px solid #ddd;
+  background: #fff;
+  padding: .25rem .5rem;
+  border-radius: .25rem;
+  cursor: pointer;
+}
+
+.range-text { color: #6c757d; font-size: .875rem; }
+
+/* optional: force one-line with horizontal scroll instead of wrapping */
+/*
+.pagination {
+  white-space: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  flex-wrap: nowrap;
+}
+*/

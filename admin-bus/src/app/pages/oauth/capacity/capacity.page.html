@@ -1,0 +1,53 @@
+<div class="container"
+  style="margin-top: 100px; display: flex; flex-direction: column; justify-content: center;"
+>
+  <div class="controls">
+    <mat-form-field appearance="outline" style="width: 25%;">
+      <mat-label>Ημερομηνία</mat-label>
+      <input matInput [(ngModel)]="date" [matDatepicker]="picker">
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+    <mat-form-field class="width" appearance="outline" style="width: 25%;">
+      <mat-label>Κωδικός Γραμμής</mat-label>
+      <input matInput placeholder="Line" [(ngModel)]="lineId" (input)="onLineInputChange($event)" aria-label="Bus Line" [matAutocomplete]="auto" required />
+      <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayLine">
+        <mat-option *ngFor="let line of filteredLine" [value]="line.line_code" (onSelectionChange)="onLineSelect($event)">
+          <span>{{ line.line_id }} | {{ line.line_descr }}</span>
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Κωδικός Διαδρομής</mat-label>
+      <input matInput placeholder="Route" aria-label="Country" [(ngModel)]="routeId" [matAutocomplete]="auto01" required />
+      <mat-autocomplete #auto01="matAutocomplete" [displayWith]="displayRoute">
+        <mat-option *ngFor="let route of routeObservable" [value]="route.code">
+          <span>{{ route.code }} | {{ route.descr }}</span>
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+
+
+
+  </div>
+  <div class="controls">
+    <!-- <label>Route: <input type="number" [(ngModel)]="routeId" min="1"></label> -->
+    <mat-form-field class="width" appearance="outline" style="width: 10%;">
+      <mat-label>Bucket (min)</mat-label>
+      <input type="number" matInput placeholder="Bucket (min)" [(ngModel)]="bucketMin" aria-label="Bucket (min)" required step="1"/>
+    </mat-form-field>
+    <mat-form-field class="width" appearance="outline" style="width: 10%;">
+      <mat-label>LF Low threashold</mat-label>
+      <input type="number" matInput placeholder="LF Low threashold" [(ngModel)]="lf" aria-label="LF Low threashold" required min="0" max="1" step="0.01" />
+    </mat-form-field>
+    <mat-form-field class="width" appearance="outline" style="width: 10%;">
+      <mat-label>LF High threashold</mat-label>
+      <input type="number" matInput placeholder="LF High threashold" [(ngModel)]="hf" aria-label="LF High threashold" required min="0" max="1" step="0.01" />
+    </mat-form-field>
+    <button (click)="load()" [disabled]="loading">Φόρτωση</button>
+    <button (click)="resetZoom()" [disabled]="!chart">Reset Zoom</button>
+  </div>
+
+  <canvas #canvas id="kpi-canvas" style="height: 500px !important;"></canvas>
+  <p *ngIf="message">{{ message }}</p>
+</div>

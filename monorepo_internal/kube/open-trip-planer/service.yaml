@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: otp-server-svc
+  namespace: oasa-telemat
+spec:
+  selector:
+    app: otp-server
+  ports:
+    - protocol: TCP
+      port: 8082
+      targetPort: 8080
+  type: ClusterIP

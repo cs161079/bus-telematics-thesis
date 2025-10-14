@@ -1,0 +1,82 @@
+<div class="container" style="margin-top: 100px;">
+  <div class="row align-items-center">
+      <div class="col-md-6">
+          <div class="mb-3">
+              <h5 class="card-title">Cron Jobs<span class="text-muted fw-normal ms-2">({{totalRec}})</span></h5>
+          </div>
+      </div>
+  </div>
+  <div class="row">
+      <div class="col-lg-12">
+          <div class="">
+              <div class="table-responsive">
+                  <table class="table project-list-table table-nowrap align-middle table-borderless opsw_table">
+                      <thead>
+                          <tr>
+                              <th scope="col">ID</th>
+                              <th scope="col">Status</th>
+                              <th scope="col">Start</th>
+                              <th scope="col">Finish</th>
+                              <th scope="col">Error</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          <tr *ngFor="let job of cronJobs;">
+                              <td style="width: 50px;">{{job.id}}</td>
+                              <td style="width: 50px;">
+                                <span class="badge mb-0" [ngClass]="job.status === 'fail' ? 'badge-soft-danger' :'badge-soft-success'">{{job.status}}</span>
+                              </td>
+                              <td style="width: 200px;">
+                                <span>{{job.start | date:'yyyy-MM-dd HH:mm:ss'}}</span>
+                              </td>
+                              <td style="width: 200px;">
+                                <span>{{job.finish | date:'yyyy-MM-dd HH:mm:ss'}}</span>
+                              </td>
+                              <td class="ellipsis">
+                                <span>{{job.error}}</span>
+                              </td>
+                              <td>
+                                <button><i data-feather="more-vertical"></i></button>
+                              </td>
+                          </tr>
+                      </tbody>
+                  </table>
+                  <mat-paginator
+                    [length]="totalRec"
+                    [pageSize]="pageSize"
+                    [pageIndex]="currentPage - 1"
+                    [pageSizeOptions]="[25, 50, 100]"
+                    [showFirstLastButtons]="true"
+                    (page)="onPage($event)">
+                  </mat-paginator>
+
+                  <p class="range">
+                    Showing {{ start }} to {{ end }} of {{ totalRec }} entries
+                  </p>
+              </div>
+          </div>
+      </div>
+  </div>
+  <!-- <div class="row g-0 align-items-center pb-4">
+      <div class="col-sm-6">
+          <div><p class="mb-sm-0">Showing {{start()}} to {{end()}}  of {{totalRec}} entries</p></div>
+      </div>
+      <div class="col-sm-6">
+          <div class="float-sm-end">
+              <ul class="pagination mb-sm-0">
+                  <li (click)="onPreviousPage($event)" class="page-item opsw-page-item disabled">
+                      <a class="page-link"><i class="mdi mdi-chevron-left"></i></a>
+                  </li>
+                  <li class="page-item opsw-page-item" [class.active]="i===currentPage" *ngFor="let i of totalPages;">
+                    <a (click)="onPageClick($event, i)" class="page-link">{{i}}</a>
+                  </li>
+                  <li class="page-item opsw-page-item">
+                      <a (click)="onNextPage($event)" class="page-link ">
+                        <i class="mdi mdi-chevron-right"></i>
+                      </a>
+                  </li>
+              </ul>
+          </div>
+      </div>
+  </div> -->
+</div>

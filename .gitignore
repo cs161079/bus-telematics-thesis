@@ -1,0 +1,13 @@
+admin-bus/.angular
+admin-bus/dist
+admin-bus/node_modules
+admin-bus/package-lock.json
+bus-telematic-mobile/.angular
+bus-telematic-mobile/.idea
+bus-telematic-mobile/.vscode
+bus-telematic-mobile/node_modules
+bus-telematic-mobile/package-lock.json
+bus-telematic-mobile/www
+monorepo_internal/.vscode
+monorepo_internal/trip-planner/gtfs/
+*.exe*

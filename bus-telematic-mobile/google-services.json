@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "924615029111",
+    "project_id": "bus-telematics",
+    "storage_bucket": "bus-telematics.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:924615029111:android:a400dd226040ba13a1b172",
+        "android_client_info": {
+          "package_name": "com.opsw.bus.telematics"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDr7QzIwA8W5wa1JDMlvGJ3ZMCyeDOBsMg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

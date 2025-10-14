@@ -1,0 +1,36 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: keycloak-ingress
+  namespace: oasa-telemat
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-dns01"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    # nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx 
+  rules:
+    # - host: uat.opsw.gr
+    #   http:
+    #     paths:
+    #       - path: /auth(/|$)(.*)
+    #         pathType: Prefix
+    #         backend:
+    #           service:
+    #             name: keycloak-svc
+    #             port:
+    #               number: 8081
+    - host: uat.opsw.gr
+      http:
+        paths:
+        - path: /auth
+          pathType: Prefix
+          backend:
+            service:
+              name: keycloak-svc
+              port:
+                number: 8081
+  tls: 
+    - hosts: 
+        - uat.opsw.gr
+      secretName: tls-secret-cert-manager-prod  

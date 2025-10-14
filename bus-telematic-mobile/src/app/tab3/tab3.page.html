@@ -1,0 +1,77 @@
+<ion-content [fullscreen]="true">
+  <div class="container-start">
+    <ion-segment #segm mode="ios" color="primary" value="favLines">
+      <ion-segment-button value="favLines" content-id="favLines">
+          <ion-label>Γραμμές</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="favStops" content-id="favStops">
+          <ion-label>Στάσεις</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+  <ion-segment-view style="height: 84%;">
+    <ion-segment-content style="padding: 15px;"  id="favLines">
+      <!-- <div class="group">
+        <div class="backImage"></div>
+        <div><h5 style="text-align: center;">Δεν υπάρχουν αγαπημένες εγγραφές</h5></div>
+      </div> -->
+      <div style="height: 100%; background-color: #ffffff; border-radius: 15px; box-shadow: 0px 0px 10px #00000038;">
+        <ion-list style="    height: 100%; overflow-y: auto;">
+          <ion-item *ngFor="let line of lineSrv.favoriteLineSub | async" (click)="onSelectLine(line)">
+            <app-line [line]="line"></app-line>
+          </ion-item>
+        </ion-list>
+      </div>
+    </ion-segment-content>
+    <ion-segment-content style="padding: 15px;" id="favStops">
+      <div style="height: 100%; background-color: #ffffff; border-radius: 15px; box-shadow: 0px 0px 10px #00000038;">
+        <ion-list style="height: 100%; overflow-y: auto;">
+          <ion-card *ngFor="let st of stopSrv.favoriteStopSub | async;" (click)="onSelectStop(st)" style="border-left: solid #0054e2 5px;">
+            <ion-card-header>
+              <ion-card-title>{{st.stop_descr}}</ion-card-title>
+              <ion-card-subtitle>{{st.stop_id}}</ion-card-subtitle>
+            </ion-card-header>
+            <ion-card-content>
+              <ion-chip *ngFor="let ln of st.lines;" style="color: #fff; font-weight: 600;"
+                  [ngStyle]="{'background-color': ln.line_type === isBusLine ? '#0054e2' : '#f8bf06'}"
+                >
+                {{ln.line_id}}
+              </ion-chip>
+            </ion-card-content>
+          </ion-card>
+          <!-- <ion-item *ngFor="let stop of stopSrv.favoriteStopSub| async" (click)="onSelectStop(stop)"
+            style="border: #000 solid 1px; border-radius: 10px; margin: 10px; height: auto;"
+          >
+            <div class="row" style="height: 100%;">
+              <div class="col-12">
+                <div class="row">
+                  <div class="col-12">
+                    <ion-label>
+                      <div>
+                        <h3 style="font-size: 20px; font-weight: 500;margin: 0;">
+                          {{stop.stop_descr}}
+                        </h3>
+                      </div>
+                      <div>
+                        <span>{{stop.stop_id}}</span>
+                      </div>
+                    </ion-label>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-12">
+                    <ion-chip *ngFor="let ln of stop.lines;" color="light"
+                        [ngStyle]="{'background-color': ln.line_type === isBusLine ? '#0054e2' : '#f8bf06'}"
+                      >
+                      {{ln.line_id}}
+                    </ion-chip>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ion-item> -->
+        </ion-list>
+      </div>
+    </ion-segment-content>
+  </ion-segment-view>
+</ion-content>

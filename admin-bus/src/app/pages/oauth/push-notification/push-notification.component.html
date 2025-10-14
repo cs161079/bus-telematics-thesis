@@ -1,0 +1,121 @@
+<!-- <div class="center">
+  <div class="container">
+      <h1 class="title">
+        Leave a notification ☝️
+      </h1>
+      <form class="form" #formData="ngForm" (ngSubmit)="onSubmit(formData)">
+        <h2>Select difficulty&hellip;</h2>
+        <div style="margin-top: 1rem; display: flex; justify-content: space-around;" class="mb-3">
+          <div class="info form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="alertType" id="info" value="info" [(ngModel)]="dt.alertType">
+            <label class="radiolabel form-check-label" for="info">
+              <img style="width: 50px" src="./../../assets/info.png" />
+            </label>
+          </div>
+
+          <div class="warning form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="alertType" id="warning" value="warning" [(ngModel)]="dt.alertType">
+            <label class="radiolabel form-check-label" for="warning">
+              <img style="width: 50px" src="./../../assets/warning.png" />
+            </label>
+          </div>
+
+          <div class="danger form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="alertType" id="danger" value="danger" [(ngModel)]="dt.alertType">
+            <label class="radiolabel form-check-label" for="danger">
+              <img style="width: 50px" src="./../../assets/danger.png" />
+            </label>
+          </div>
+        </div>
+
+        <div class="form-floating mb-3">
+          <input style="background: transparent; color: inherit;" type="text" class="form-control" id="floatingTitle" name="title" placeholder="Notification Title" [(ngModel)]="dt.title" required>
+          <label  style="color: inherit;" for="floatingTitle">Notification Title</label>
+        </div>
+        <div class="form-floating mb-3">
+          <textarea style="background: transparent; color: inherit; height: 150px;" type="text" class="form-control" id="floatingMessage" name="message" [(ngModel)]="dt.message"
+            placeholder="Notification Message">
+          </textarea>
+          <label class="textarea-label" style="color: inherit;" for="floatingMessage">Message</label>
+        </div>
+        <button class="form__btn" type="submit">
+          <span class="form__btn--visible">
+            <p>Push</p>
+          </span>
+        </button>
+      </form>
+
+
+
+    <div style="font-size: 25px;" class="container-mail">
+      <div style="display: flex;justify-content: center;width: 100%;">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="switchCheckChecked" [checked]="themeSrv.isDarkMode | async" (change)="onModeChange($event)">
+          <label class="form-check-label" for="switchCheckChecked">Dark mode</label>
+        </div>
+      </div>
+      <img class="bell" style="width: 370px;" src="./../../assets/notification-bell.png" />
+    </div>
+
+  </div>
+</div> -->
+
+<div class="center">
+  <div class="container custom-container">
+    <div>
+      <h1 style="text-align: center;font-size: 3.2rem;margin: 0px 0; padding: 30px 1px; background-color: var(--title-bg-color);">
+        Leave a notification ☝️
+      </h1>
+    </div>
+      <div style="display: flex; margin: 30px;">
+        <div style="width: 60%;">
+          <form class="form" #formData="ngForm" (ngSubmit)="onSubmit(formData)">
+            <h2>Select difficulty&hellip;</h2>
+            <div style="margin-top: 1rem; display: flex; justify-content: space-around;" class="mb-3">
+              <div class="info form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="alertType" id="info" value="info" [(ngModel)]="dt.alertType">
+                <label class="radiolabel form-check-label" for="info">
+                  <img style="width: 50px" src="./../../assets/info.png" />
+                </label>
+              </div>
+
+              <div class="warning form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="alertType" id="warning" value="warning" [(ngModel)]="dt.alertType">
+                <label class="radiolabel form-check-label" for="warning">
+                  <img style="width: 50px" src="./../../assets/warning.png" />
+                </label>
+              </div>
+
+              <div class="danger form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="alertType" id="danger" value="danger" [(ngModel)]="dt.alertType">
+                <label class="radiolabel form-check-label" for="danger">
+                  <img style="width: 50px" src="./../../assets/danger.png" />
+                </label>
+              </div>
+            </div>
+
+            <div class="form-floating mb-3">
+              <input style="background: transparent; color: inherit;" type="text" class="form-control" id="floatingTitle" name="title" placeholder="Notification Title" [(ngModel)]="dt.title" required>
+              <label  style="color: inherit;" for="floatingTitle">Notification Title</label>
+            </div>
+            <div class="form-floating mb-3">
+              <textarea style="background: transparent; color: inherit; height: 150px;" type="text" class="form-control" id="floatingMessage" name="message" [(ngModel)]="dt.message"
+                placeholder="Notification Message">
+              </textarea>
+              <label class="textarea-label" style="color: inherit;" for="floatingMessage">Message</label>
+            </div>
+            <button class="form__btn" type="submit">
+              <span class="form__btn--visible">
+                <p>Push</p>
+              </span>
+            </button>
+          </form>
+        </div>
+        <div style="width: 40%;">
+          <img class="bell" style="width: 370px;" src="./../../assets/notification-bell.png" />
+        </div>
+      </div>
+
+
+  </div>
+</div>

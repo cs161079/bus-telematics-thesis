@@ -1,0 +1,8 @@
+{
+    "/mapbox-api": {
+      "target": "https://maps.geoapify.com",
+      "secure": true,
+      "changeOrigin": true,
+      "pathRewrite": { "^/mapbox-api": "" }
+    }
+}

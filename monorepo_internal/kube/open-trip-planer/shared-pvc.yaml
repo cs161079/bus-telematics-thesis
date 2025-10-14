@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: oasa-telemat
+  name: otp-shared-pvc
+spec:
+  accessModes:
+    - ReadWriteMany         # σημαντικό για διαφορετικούς κόμβους
+  storageClassName: microk8s-hostpath
+  resources:
+    requests:
+      storage: 20Gi

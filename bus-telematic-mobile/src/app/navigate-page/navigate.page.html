@@ -1,0 +1,88 @@
+<ion-content [fullscreen]="true">
+  <div class="container-start">
+    <ion-item class="searchInput" style="min-width: 300px; width: 300px; margin: 5px 0px;">
+      <ion-label>Από:</ion-label>
+      <ionic-selectable
+        [(ngModel)]="navigationPoint1"
+        style="max-width: 100%;"
+        itemValueField="coords"
+        itemTextField="displayName"
+        [items]="adresses"
+        [hasVirtualScroll]="true"
+        [canClear]="true"
+        [canSearch]="true"
+        headerColor="primary"
+        closeButtonSlot="end"
+        searchPlaceholder="From Point"
+        searchFailText="Address not found"
+        [shouldFocusSearchbar]="true"
+        #selectableComponentFrom
+        (onChange)="onChangeAddress01($event)"
+      >
+      <ng-template ionicSelectableCloseButtonTemplate>
+        <ion-icon slot="icon-only" name="close" color="light"></ion-icon>
+      </ng-template>
+    </ionic-selectable>
+    </ion-item>
+    <ion-item class="searchInput" style="min-width: 300px; width: 300px; margin: 5px 0px; " (click)="onOpenSearch()">
+      <ion-label>Πρός:</ion-label>
+      <ionic-selectable
+        style="max-width: 100%;"
+        [(ngModel)]="navigationPoint2"
+        itemValueField="coords"
+        itemTextField="displayName"
+        [items]="adresses"
+        [hasVirtualScroll]="true"
+        [canClear]="true"
+        [canSearch]="true"
+        headerColor="primary"
+        closeButtonSlot="end"
+        searchPlaceholder="To Point"
+        searchFailText="Address not found"
+        [shouldFocusSearchbar]="true"
+        (onChange)="onChangeAddress02($event)"
+        #selectableComponentTo
+      ></ionic-selectable>
+    </ion-item>
+  </div>
+  <div class="container-middle" style="height: 100%;">
+    <div id="navigate-map" style="height: 100%;"></div>
+  </div>
+</ion-content>
+
+<ion-modal
+  style="--border-radius: 20px;"
+  [isOpen]="modalOpen"
+  [initialBreakpoint]="0.15"
+  [breakpoints]="[0.15, 0.25, 0.4, 0.65, 0.75, 1]"
+  [backdropDismiss]="false"
+  [backdropBreakpoint]="0.5"
+  mode="md"
+  #modal
+>
+  <ng-template>
+    <ion-header style="box-shadow: none; -webkit-box-shadow: none;">
+      <ion-toolbar>
+        <ion-title style="font-size: x-large;">Public Transport</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="onModalClose()" style="background-color: #00000017; border-radius: 20px;" shape="round">
+            <ion-icon style="font-size: 17px;" size="" name="close-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <ion-list>
+      <app-trip [selected]="selectedTrip === i" [trip]="plan" *ngFor="let plan of tripPlans; let i = index;" (click)="onTripClick(i)">
+        <!-- <ion-avatar>
+          <img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+        </ion-avatar>
+        <ion-label>
+          Choice {{i}}
+        </ion-label> -->
+        <!-- <app-trip [trip]="plan"></app-trip> -->
+      </app-trip>
+    </ion-list>
+    </ion-content>
+  </ng-template>
+</ion-modal>

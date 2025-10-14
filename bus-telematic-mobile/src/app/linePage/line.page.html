@@ -1,0 +1,108 @@
+<ion-header [translucent]="true">
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-button (click)="onBackdrop($event)" style="font-size: 25px;">
+                <ion-icon name="arrow-back-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>
+          <div style="padding: 0px 10px; margin: auto; width:max-content; text-align: center;" [ngStyle]="{'border-bottom': borderStyle}">
+            <img style="width: 25px;" [src]="imageSrc"/>
+            <!-- <img *ngIf="line.line_type === isTrolley" style="width: 25px;" src="../../../assets/images/trolley-bus-release.png"/> -->
+            <span style="margin-left: 5px;">{{getLineId()}}</span>
+          </div>
+        </ion-title>
+        <ion-buttons slot="end" >
+            <ion-button (click)="addOnFavLine()" style="font-size: 25px;">
+                <!-- <ion-icon name="heart-outline"></ion-icon> -->
+                <ion-icon [ngStyle]="(lineSrv.isFavLines(getLineCode()) | async) ? {'color': 'red'} : {'color': 'black'}"
+                  [name]="(lineSrv.isFavLines(getLineCode()) | async) ? 'heart' : 'heart-outline'"
+                ></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+    <div class=" container form-floating mb-3" *ngIf="altLines.length > 1">
+      <button id="floatingButton" class="custom-dropdown btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2"
+        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" (click)="onSelectAltLine($event)">
+        {{getSelectedRAltLineDescr()}}
+      </button>
+      <label class="floatingLabel" for="floatingButton">Εναλλακτικές Γραμμές</label>
+    </div>
+    <div style="margin-top: 10px; height: 100%;">
+        <ion-segment #segm mode="ios" color="primary" value="first" (ionChange)="onSegmentChange($event)">
+            <ion-segment-button value="first" content-id="first">
+                <ion-label>Δρομολόγια</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="second" content-id="second">
+                <ion-label>Στάσεις</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="third" content-id="third">
+              <ion-label>Θέση Λεωφορείου</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+        <ion-segment-view style="height: 90%;">
+            <ion-segment-content style="height: 100%; overflow-x: hidden;"  id="first">
+                <div class="container form-floating mb-3">
+                  <button class="custom-dropdown btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2"
+                      data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" (click)="onSelectSchedule($event)">
+                      {{getSelectedSchedDescr()}}
+                  </button>
+                  <label class="floatingLabel" for="floatingButton">Πρόγραμμα</label>
+                </div>
+                <div *ngIf="segm.value==='first'" style="height: 80%; display: flex;">
+                    <div class="full-list" *ngIf="showList(1)" [ngClass]="showList(1) && showList(0) ? 'mid-list' : ''">
+                        <div>
+                            <h5 class="list-title">Πήγαινε</h5>
+                        </div>
+                        <ion-list style="height: 100%; overflow-y: auto;">
+                            <ion-item *ngFor="let t of filterAboutDirection(1);" [ngClass]="t.itsTime ? 'itsTime' : ''">
+                                <ion-label class="time-label">{{t.start_time}}</ion-label>
+                            </ion-item>
+                        </ion-list>
+                    </div>
+                    <div class="full-list" *ngIf="showList(0)" [ngClass]="showList(1) && showList(0) ? 'mid-list' : ''">
+                        <div>
+                            <h5 class="list-title">Επιστροφή</h5>
+                        </div>
+                        <ion-list style="height: 100%; overflow-y: auto;">
+                            <ion-item *ngFor="let t of filterAboutDirection(0);" [ngClass]="t.itsTime ? 'itsTime' : ''">
+                                <ion-label class="time-label">{{t.start_time}}</ion-label>
+                            </ion-item>
+                        </ion-list>
+                    </div>
+                </div>
+            </ion-segment-content>
+            <ion-segment-content style="height: 100%; overflow-y: hidden;" id="second">
+                <div class="container form-floating mb-3">
+                    <button class="custom-dropdown btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" (click)="onSelectRoute($event)">
+                        {{getSelectedRouteDescr()}}
+                    </button>
+                    <label class="floatingLabel" for="floatingButton">Διαδρομές</label>
+                </div>
+                <div style="height: 85%;" *ngIf="segm.value==='second'">
+                    <ion-list style="height: 100%; overflow-y: auto;">
+                        <ion-item *ngFor="let stp of getSelectedRoute()?.stops;" (click)="onOpenStop($event, stp.stop_code)">
+                            {{stp.stop_code }} - {{stp.stop_descr}}
+                        </ion-item>
+                    </ion-list>
+                </div>
+            </ion-segment-content>
+            <ion-segment-content style="height: 90%; /*overflow-y: hidden;*/" id="third">
+              <div class="container form-floating mb-3">
+                <button class="custom-dropdown btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" (click)="onSelectRoute($event)">
+                    {{getSelectedRouteDescr()}}
+                </button>
+                <label class="floatingLabel" for="floatingButton">Διαδρομές</label>
+              </div>
+              <div class="map-frame">
+                <div id="line-map"></div>
+              </div>
+            </ion-segment-content>
+        </ion-segment-view>
+    </div>
+</ion-content>

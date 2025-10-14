@@ -1,0 +1,66 @@
+<nav class="navbar navbar-expand-lg navbar-light opsw_navbar">
+  <a class="navbar-brand" href="#" aria-label="Toggle navigation">
+    <img src="../../../assets/app-icon.png" width="40px" height="40px">
+  </a>
+  <!-- <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+  aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button> -->
+
+  <div class="collapse navbar-collapse" style="justify-content: space-between;" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="navbar__item">
+        <a class="navbar__link" href="/oauth/push-notification">
+          <i data-feather="home"></i>
+          <span>Notify</span>
+        </a>
+      </li>
+      <li class="navbar__item">
+        <a class="navbar__link" href="/oauth/jobs">
+          <i data-feather="activity"></i>
+          <span>Jobs</span>
+        </a>
+      </li>
+      <li class="navbar__item">
+        <a class="navbar__link" href="/oauth/capacity">
+          <i data-feather="activity"></i>
+          <span>Traffic</span>
+        </a>
+      </li>
+    </ul>
+    <!-- <div class="form-check form-switch ms-auto mt-3 me-3" style="font-size: 20px;margin-top: 0px !important; margin-bottom: 0px !important;">
+      <label class="form-check-label ms-3" for="lightSwitch">
+        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-brightness-high" viewBox="0 0 16 16">
+          <path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"></path>
+        </svg>
+      </label>
+      <input class="form-check-input" type="checkbox" id="lightSwitch" [checked]="themeSrv.isDarkMode | async" (change)="onModeChange($event)">
+    </div> -->
+    <div style="display: flex; align-items: center;">
+      <div #toggleBtn class="toggle-btn" (click)="changeTheme()">
+        <div class="icon">
+          <i *ngIf="themeSrv.isDarkMode | async" class="fa-solid fa-moon"></i>
+          <i *ngIf="!(themeSrv.isDarkMode | async)" class="fa-solid fa-sun"></i>
+        </div>
+      </div>
+      <ul class="navbar-nav mr-auto">
+        <li class="navbar__item dropdown">
+          <a (click)="openDropDown()" style="width: 50px; height: 50px;" class="navbar__link" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            <i data-feather="user"></i>
+          </a>
+          <div #dropdown_menu style="right: 0;top: 50px;padding-left: 10px;padding-right: 10px;" class="dropdown-menu opsw_dropdown" aria-labelledby="navbarDropdown" [ngClass]="dropdownShow ? 'show' : ''">
+            <h6 class="dropdown-header">
+              <span>
+                Logged in as <b>{{profile?.username}}</b>
+              </span></h6>
+            <!-- <a class="dropdown-item opsw_dropdown-choice" (click)="logOut()">Log Out</a> -->
+          </div>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</nav>
+<app-alert [alert]="generalService.alerts | async"></app-alert>
+<router-outlet />
+

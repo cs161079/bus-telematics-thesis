@@ -1,0 +1,22 @@
+.menu-footer {
+  padding: 1rem;
+  border-top: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;           /* Full viewport height */
+  background: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.menu-items {
+  flex: 1;                 /* Takes all available space */
+  padding: 1rem;
+  overflow-y: auto;        /* Scroll if too long */
+}
