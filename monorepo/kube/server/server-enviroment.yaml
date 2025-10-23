@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: server-enviroment
+  namespace: oasa-telemat
+data:
+  database.ip: mysql-svc
+  database.dbname: oasa_telemat
+  database.user: user1
+  database.password: user1Password
+  database.migration.folder: common/db/migrations
+  application.name: webApp
+  application.logs.path: /var/log
+  keycloak.client_id: oasa-client
+  keycloak.url: https://uat.osses.gr/auth/realms/oasa-telemat
+  otp.service: http://otp-server-svc:8080

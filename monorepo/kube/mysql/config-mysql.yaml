@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: oasa-mysql
+  name: configmap-entry
+  namespace: oasa-telemat
+data:
+
+  entrypoint.sh: |-
+      #!/bin/bash
+      while ! mysqladmin ping -h"127.0.0.1" --silent; do
+          echo "🟠 Wait for MySQL to be ready..."
+          sleep 1
+      done
+      
+      echo "🟢 MySQL is ready."
+      echo "🟦 Current user: $(whoami)"
+      
+      export MYSQL_PWD=$(echo $MYSQL_ROOT_PASSWORD)
+      
+      mysql -u root -e "source /var/db/config/oasa-telemat/mysql-schema-config.sql"

@@ -3627,3 +3627,8 @@
 2025-10-03 01:26:47,819 - INFO - Resourece Server url set http://127.0.0.1:8083
 2025-10-03 01:33:13,017 - INFO - Resourece Server url set http://127.0.0.1:8083
 2025-10-03 01:54:33,721 - INFO - Resourece Server url set http://127.0.0.1:8083
+2025-10-23 16:46:31,580 - INFO - Resourece Server url set http://127.0.0.1:8083
+2025-10-23 16:51:03,802 - INFO - Resourece Server url set https://uat.osses.gr/api
+2025-10-23 16:51:33,925 - INFO - Resourece Server url set https://uat.osses.gr/api/v1
+2025-10-23 16:52:33,516 - INFO - Resourece Server url set https://uat.osses.gr
+2025-10-23 18:54:56,508 - INFO - Resourece Server url set https://uat.osses.gr

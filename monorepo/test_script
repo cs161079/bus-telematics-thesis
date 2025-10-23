@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+cat > "otp-config.json" <<JSON
+{
+  "otpFeatures": { "LegacyRestApi": true, "ActuatorAPI": true}
+}
+JSON

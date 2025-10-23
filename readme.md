@@ -7,6 +7,82 @@
 - Δρομολόγια και χρονοδιαγράμματα
 
 ---
+
+## Οδηγείες για το Kubernetes Cluster
+Στον Cluster γίνονται deploy όλες οι εφαρμογές που αφορούν το backend. Αυτές είναι η βάση δεδομένων, ο Application Server, ο Authendicator Server και το CronJob που συγχρονίζει τα δεδομένα. Επομένως πως μπορούμε να εκτελέσουμε όλα αυτά στον Cluster με μία σειρά εντολών. 
+Πρώτα πρέπει να δημειουργηθεί η βάση δεδομένων και μετά όλα τα υπολοιπα. Αυτό γιατί όλα χρησιμοποιούν την βάση δεδομένων, σε περιπτωση που γίνουν με άλλη σειρά δεν υπάρχει κάποιο πρόβλημα γιατί έχουν σχεδιαστεί όλα με τέτοιο τρόπο ώστε να περίμένουν μέχρι όλες οι εξαρτήσεις είναι έτοιμες.
+
+Εδώ κάνουμε δημιουργία το Namespace που θα στήσουμε μέσα σε αυτό όλα τα παραπάνω. 
+    
+**Θυμίζουμε ότι το namespace είναι είναι ένας λογικός διαχωρισμός πόρων σε απομονομένα σύνολα ώστε να οργανόνονται, να διαχειρίζονται και να ελέγχονται πιο ευκκολα.
+
+```
+kubectl create namespace oasa-telemat
+```
+
+Δημιουργία βάσης δεδομένων
+```
+cd monorepo_internal
+kubectl apply -k kube/mysql
+```
+
+Δημιουργία Authendicator Server
+```
+kubectl apply -k kube/keycloak
+```
+Μετά την δημιοργία του της εφαρμογής του Authendicator θα πρέπει να γίνου ενεργείες στο διαχειριστικό του.
+
+- Κάνουμε login με τα Credentials του διαχειριστή
+- Πατάμε πάνω αριστερά, σε ένα Dropdown για να δημιουργήσουμε ένα νέο relame
+    ![Δημιοργία νέου Realme](./assets/image_1.png)
+- Αφού δημιοργήσουμε το realm θα πρέπεί να κάνουμε αλλαγή στο realm και να δημιουργήσουμε ένα Client-id.
+    ![Δημιοργία νέου Client-id](./assets/image_2.png)
+    ![Έναρξη Δημιοργίας νέου Client-id](./assets/image_3.png)
+    ![Έπόμενο βήμα Δημιοργίας νέου Client-id](./assets/image_4.png)
+    ![Έπόμενο βήμα Δημιοργίας νέου Client-id](./assets/image_5.png)
+    ![Τέλος Δημιοργίας νέου Client-id](./assets/image_6.png)
+- Θα πρέπει να δημιουργήσουμε και ένα test χειριστή που θα χρησιμοποιήσουμε. Η δημιουργία του χειριστή θα γίνει ακολουθώντας τα παρακάτω βήματα
+![Δημιοργία νέου χειριστή](./assets/image_7.png)
+![Επόμενο βήμα δημιουργίας χειριστή](./assets/image_8.png)
+![Τέλος δημιουργίας χειριστή](./assets/image_9.png)
+
+### Setup Application Server
+1) Εφόσον κάνουμε Build το Docker image 
+
+```
+docker build -f docker/oasa-api.Dockerfile -t localhost:5000/oasa-api:0.0.1 --network=host .
+```
+
+2) Με την χρήση Kustomization θα κάνουμε Depoloy την εφαρμογη και ότι άλλο χρειάζεται.
+```
+kubectl apply -k kube/server
+```
+### Set OTP Deployment
+1) Θα πρέπει να κάνουμε Build το Docker image με την παρακάτω εντολή.
+```
+docker build -f docker/trip-planner-api.Dockerfile -t localhost:5000/trip-planner-api:0.0.8 --network=host .
+```
+2) Να κάνω Deploy την εφαρμογή στο Cluster δημιουργώντας και ότι άλλο χρειάζεται χρησιμοποιώντας Kustomization.
+
+```
+kubectl apply -k kube/open-trip-planer/
+```
+### Set up Cronjon
+
+1) Πρέπει να κάνουμε Build το Docker Image
+
+```
+docker build -f docker/oasa-job.Dockerfile -t localhost:5000/oasa-job:0.0.1 --network=host .
+```
+
+2) Μετά πρέπει να κάνουμε deploy το Cronjob στον Cluster. Με την χρήση Kustomization θα δημιουργήσουμε το CornJob και ότι άλλο χρειάζεται
+
+```
+kubectl apply -k kube/cronjob
+```
+
+
+
 ## Admin Portal
 Είναι μία Web Εφαρμογή με την οποία ο διαχειρηστής του οργανισμού μεταφορών μπορεί να δει πληροφορίες αλλά και να κάνει ενέργει εκ των οποίων είναι η αποστολή ειδοποιήσεων στους χειριστές της Mobile εφαρμογής αλλά και η προσθήκη ή μειώση δρομολογίου ανάλογα με τις προτάσεις του συστήματος.
 

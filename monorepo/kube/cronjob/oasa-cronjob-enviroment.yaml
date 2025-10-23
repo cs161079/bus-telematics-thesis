@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: oasa-cronjob-enviroment
+  namespace: oasa-telemat
+data:
+  database.ip: mysql-svc
+  database.port: "3306"
+  database.dbname: oasa_telemat
+  database.user: user1
+  database.password: user1Password
+  application.name: oasa
+  application.logs.path: /var/log
+  gtfs.location: /data/routers/default/gtfs_feed.zip

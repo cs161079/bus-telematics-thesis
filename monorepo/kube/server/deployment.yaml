@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: oasa-server
+  name: oasa-server
+  namespace: oasa-telemat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oasa-server
+  template:
+    metadata:
+      labels:
+        app: oasa-server
+    spec:
+      initContainers:
+        - name: wait-mysql
+          image: mysql:8.4
+          env:
+            - name: MYSQL_HOST
+              value: "mysql-svc"   # <-- your MySQL Service DNS
+            - name: MYSQL_PORT
+              value: "3306"
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_ROOT_PASSWORD
+          command: ["sh","-c"]
+          args:
+            - |
+              set -e
+              export MYSQL_PWD="$MYSQL_ROOT_PASSWORD"
+              until mysqladmin ping -h "$MYSQL_HOST" -P "$MYSQL_PORT" -u root --silent; do
+                echo "🟠 Waiting for MySQL at $MYSQL_HOST:$MYSQL_PORT ..."
+                sleep 2
+              done
+              echo "🟢 MySQL is ready."
+
+        - name: wait-keycloak-02
+          image: busybox:1.36
+          env:
+            - name: KC_READY_URL
+              value: "http://keycloak-svc:8081/auth/health/ready"
+          command: ["sh","-c"]
+          args:
+            - |
+              until wget -qO- $KC_READY_URL >/dev/null; do
+                echo "🟠 Waiting for Keycloak..." 
+                sleep 2
+              done
+              echo "🟢 Keycloak is ready."
+      containers:
+      - image: localhost:5000/oasa-api:1.0.3                                          
+        # resources:
+        #   requests:
+        #     cpu: "250m"
+        #     memory: "512Mi"
+        #   limits:
+        #     cpu: "500m"
+        #     memory: "1Gi"
+        name: oasa-server
+        # volumeMounts:
+        # - name: configmap-entry-vol
+        #   mountPath: /bin/entrypoint.sh
+        #   readOnly: true
+        #   subPath: entrypoint.sh
+        ports:
+        - containerPort: 8082
+        envFrom:
+        - configMapRef:
+            name: server-enviroment
+        # lifecycle:
+        #   postStart:
+        #     exec:
+        #       command:
+        #       - "/bin/entrypoint.sh"
+      # volumes:
+      # - name: configmap-entry-vol
+      #   configMap:
+      #     defaultMode: 0700
+      #     name: configmap-entry
+      # initContainers:
+      #   - name: wait-for-mysql-pod
+      #     image: busybox:1.28
+      #     args:
+      #       - /bin/sh
+      #       - -c
+      #       - until telnet mysql-svc 3306; do echo waiting for mysql-service; sleep 2; done;
+
