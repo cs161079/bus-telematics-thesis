@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: portal-ingress
+  namespace: oasa-telemat
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - uat.osses.gr
+      secretName: keycloak-tls
+  rules:
+    - host: uat.osses.gr
+      http:
+        paths:
+          - path: /portal
+            pathType: Prefix
+            backend:
+              service:
+                name: angular-portal
+                port:
+                  number: 80

@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 import { AuthGuard } from './guard/app.guard';
 import { HomePage } from './pages/unoauth/home/home.page';
 import { OAuthComponent } from './pages/oauth/oauth.component';
-import { RoleGuard } from './guard/role.guard';
 import { LoginGuard } from './guard/login.guard';
 
 export const routes: Routes = [
@@ -17,8 +16,6 @@ export const routes: Routes = [
           {
             path: 'push-notification',
             loadComponent: () => import('./pages/oauth/push-notification/push-notification.component').then(m => m.PushNotificationComponent),
-            canActivate: [RoleGuard],
-            data: { roles: ['oasa-admin'] }
           },
           {
             path: 'jobs',

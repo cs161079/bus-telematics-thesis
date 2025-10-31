@@ -1,0 +1,40 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: uat-app
+  namespace: oasa-telemat
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - uat.osses.gr
+      secretName: keycloak-tls
+  rules:
+    - host: uat.osses.gr
+      http:
+        paths:
+          - path: /api/v1
+            pathType: Prefix
+            backend:
+              service:
+                name: oasa-server-svc                       # <-- βάλε το δικό σου Service
+                port:
+                  number: 80
+          - path: /auth
+            pathType: Prefix
+            backend:
+              service:
+                name: keycloak-svc                    # <-- Service του auth server
+                port:
+                  number: 8081
+          - path: /portal
+            pathType: Prefix
+            backend:
+              service:
+                name: angular-portal
+                port:
+                  number: 80
