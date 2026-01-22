@@ -174,11 +174,5 @@ func DatabaseMigrations() error {
 		logger.ERROR(fmt.Sprintf("Migration Up failed: %v", err))
 	}
 	logger.INFO("Migrate UP become successfully!")
-
-	// if err := m.Down(); err != nil && err != migrate.ErrNoChange {
-	// 	// return fmt.Errorf("Migration Down failed. %v", err)
-	// 	logger.ERROR(fmt.Sprintf("Migration Down failed: %v", err))
-	// }
-	// logger.INFO("Migrate DONW become successfully!")
 	return nil
 }

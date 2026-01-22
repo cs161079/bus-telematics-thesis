@@ -4,8 +4,9 @@ metadata:
   name: oasa-cronjob-config
   namespace: oasa-telemat
 resources:
+  - shared-pvc.yaml
   - pvc.yaml
-  - oasa-cronjob-enviroment.yaml
+  - config-map.yaml
   - cronjob.yaml
 generatorOptions:
-  disableNameSuffixHash: true # use a static name
+  disableNameSuffixHash: true

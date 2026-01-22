@@ -4,6 +4,7 @@ metadata:
   name: oasa-cronjob-enviroment
   namespace: oasa-telemat
 data:
+  OTP_JAVA_XMX: "6G"
   database.ip: mysql-svc
   database.port: "3306"
   database.dbname: oasa_telemat

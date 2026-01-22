@@ -47,7 +47,6 @@ COPY --from=builder /app/.env /usr/local/bin/.env
 # ---- Settings για cron-friendly run ----
 ENV TZ=Europe/Athens \
     JAVA_TOOL_OPTIONS="-XX:+ExitOnOutOfMemoryError -XX:+UseContainerSupport" \
-    OTP_JAVA_XMX=6G \
     OSM_URL=https://download.geofabrik.de/europe/greece-latest.osm.pbf \
     OSM_FILE=greece-latest.osm.pbf \
     GTFS_FILE=gtfs_feed.zip \

@@ -53,40 +53,11 @@ spec:
               done
               echo "🟢 Keycloak is ready."
       containers:
-      - image: localhost:5000/oasa-api:1.0.3                                          
-        # resources:
-        #   requests:
-        #     cpu: "250m"
-        #     memory: "512Mi"
-        #   limits:
-        #     cpu: "500m"
-        #     memory: "1Gi"
+      - image: cs161079uniwa/oasa-server:0.0.1                                          
         name: oasa-server
-        # volumeMounts:
-        # - name: configmap-entry-vol
-        #   mountPath: /bin/entrypoint.sh
-        #   readOnly: true
-        #   subPath: entrypoint.sh
         ports:
         - containerPort: 8082
         envFrom:
         - configMapRef:
             name: server-enviroment
-        # lifecycle:
-        #   postStart:
-        #     exec:
-        #       command:
-        #       - "/bin/entrypoint.sh"
-      # volumes:
-      # - name: configmap-entry-vol
-      #   configMap:
-      #     defaultMode: 0700
-      #     name: configmap-entry
-      # initContainers:
-      #   - name: wait-for-mysql-pod
-      #     image: busybox:1.28
-      #     args:
-      #       - /bin/sh
-      #       - -c
-      #       - until telnet mysql-svc 3306; do echo waiting for mysql-service; sleep 2; done;
 
