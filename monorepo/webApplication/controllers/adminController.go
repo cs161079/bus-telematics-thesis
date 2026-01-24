@@ -139,7 +139,7 @@ func (c *adminControllerImpl) jobList(ctx *gin.Context) {
 
 func (c *adminControllerImpl) getKpis(ctx *gin.Context) {
 	date := ctx.Query("date")
-	routeIDStr := ctx.Query("route_id")
+	routeIDStr := ctx.Query("routeId")
 	if date == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "No date provided."})
 		return
@@ -155,7 +155,7 @@ func (c *adminControllerImpl) getKpis(ctx *gin.Context) {
 	}
 
 	// Optional query params (with defaults)
-	bucketMin := utils.StrToInt8Def(ctx.Query("bucket_min"), 15)
+	bucketMin := utils.StrToInt8Def(ctx.Query("bucketMin"), 15)
 	lfLowThresh := utils.StrToFloat32Def(ctx.Query("lf"), 0.85)
 	lfHighThresh := utils.StrToFloat32Def(ctx.Query("hf"), 0.85)
 	// peakThresh := utils.StrToFloat32Def(ctx.Query("peak"), 0.95)
@@ -163,7 +163,7 @@ func (c *adminControllerImpl) getKpis(ctx *gin.Context) {
 
 	// Validations first
 	if bucketMin <= 0 || bucketMin > 120 {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "bucket_min must be in (1..120] minutes"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "bucket_min must be in [1..120] minutes"})
 		return
 	}
 	if *routeID <= 0 {

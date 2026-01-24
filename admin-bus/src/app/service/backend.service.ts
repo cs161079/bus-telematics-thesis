@@ -4,13 +4,16 @@ import { CronjobRec, NotificationRec, PagingData } from "../models/models.interf
 import { environment } from "../../environments/environment";
 import { map, Observable } from "rxjs";
 import { KPIBucket } from "../pages/oauth/capacity/capacity.page";
+import { DatePipe } from "@angular/common";
+import { isMoment } from "moment";
 
 @Injectable({
   providedIn: "root"
 })
 export class BackendService {
   constructor(
-    private httpClnt: HttpClient
+    private httpClnt: HttpClient,
+    private datePipe: DatePipe
   ) {
 
   }
@@ -71,15 +74,23 @@ export class BackendService {
   // }
 
   getKpis(params: {
-    date: string | undefined;
-    route_id: number | string;
-    bucket_min?: number | string;
-    lf?: number | string;
-    hf?: number | string;
-    mult?: number | string;
+    date: Date | null;
+    routeId: string |  null;
+    bucketMin?: number | null;
+    lf?: number | null;
+    hf?: number | null;
+    mult?: number | null;
   }): Observable<KPIBucket[]> {
     let p = new HttpParams();
-    Object.entries(params).forEach(([k, v]) => { if (v !== undefined) p = p.set(k, String(v)); });
+    Object.entries(params).forEach(
+      ([k, v]) => {
+        if (v !== undefined)
+          if(isMoment(v)) {
+            p = p.set(k, this.datePipe.transform(v, "YYYY-MM-dd")!);
+          } else {
+            p = p.set(k, String(v));
+          }
+      });
     return this.httpClnt.get<KPIBucket[]>(`${environment.server}/admin/kpis`, { params: p });
   }
 

@@ -5,6 +5,7 @@ import { routes } from './app.routes';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { KeycloakAngularModule, KeycloakBearerInterceptor, KeycloakService } from 'keycloak-angular';
+import { DatePipe } from '@angular/common';
 
 function initializeKeycloak(keycloak: KeycloakService) {
   return () =>
@@ -25,6 +26,7 @@ function initializeKeycloak(keycloak: KeycloakService) {
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    DatePipe,
     provideRouter(routes),
     provideAnimationsAsync(),
     importProvidersFrom(KeycloakAngularModule),

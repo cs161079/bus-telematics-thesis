@@ -3,16 +3,17 @@ import { Chart, BarController, BarElement, LineController, LineElement, PointEle
 import zoomPlugin from 'chartjs-plugin-zoom';
 import { BackendService } from "../../../service/backend.service";
 import { CommonModule, DatePipe } from "@angular/common";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatAutocompleteModule } from "@angular/material/autocomplete";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
-import { MAT_DATE_LOCALE, MatOptionSelectionChange, provideNativeDateAdapter } from "@angular/material/core";
+import { MAT_DATE_FORMATS, MAT_DATE_LOCALE, MatOptionSelectionChange, provideNativeDateAdapter } from "@angular/material/core";
 import { GeneralService } from "../../../service/general.service";
 import { HttpErrorResponse } from "@angular/common/http";
+import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 
 export interface KPIBucket {
   slot_start: string;   // "HH:MM:SS"
@@ -34,6 +35,18 @@ Chart.register(
   CategoryScale, LinearScale, Tooltip, Legend, Colors, zoomPlugin
 );
 
+export const MY_DATE_FORMATS = {
+  parse: {
+    dateInput: 'DD/MM/YYYY'
+  },
+  display: {
+    dateInput: 'dd/MM/yyyy',
+    monthYearLabel: 'MMMM YYYY',
+    dateA11yLabel: 'LL',
+    monthYearA11yLabel: 'MMMM YYYY'
+  }
+};
+
 @Component({
   selector: "app-capacity-page",
   templateUrl: "capacity.page.html",
@@ -41,8 +54,9 @@ Chart.register(
   standalone: true,
   providers: [
     DatePipe,
-    provideNativeDateAdapter(),
-    {provide: MAT_DATE_LOCALE, useValue: 'el-GR'}
+    {provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS},
+    {provide: MAT_DATE_LOCALE, useValue: 'el-GR'},
+    provideMomentDateAdapter(),
   ],
   imports: [CommonModule, FormsModule, ReactiveFormsModule,
     MatFormFieldModule,
@@ -57,17 +71,18 @@ export class CapacityPage {
   filteredLine: any[] = [];
   routeObservable!: any[];
 
-  date = new Date();
-  lineId!: number;
-  routeId!: number;
-  bucketMin = 15;
-  lf = 0.45;
-  hf = 0.85;
-  mult = 1.0;
-
   loading = false;
   chart?: Chart;
 
+  form = new FormGroup({
+    date: new FormControl(new Date(), Validators.required),
+    lineId: new FormControl("", Validators.required),
+    routeId: new FormControl("", Validators.required),
+    bucketMin: new FormControl(15, [Validators.required, Validators.min(1)]),
+    lf: new FormControl(0.45, [Validators.required, Validators.min(0), Validators.max(1)]),
+    hf: new FormControl(0.85, [Validators.required, Validators.min(0), Validators.max(1)]),
+    mult: new FormControl(1.0, [Validators.required, Validators.min(0.1)])
+  });
   constructor(
     private backSrv: BackendService,
     private datePipe: DatePipe,
@@ -87,15 +102,12 @@ export class CapacityPage {
     this.loading = true;
     this.destroyChart();
 
-    const dateStr = this.datePipe.transform(this.date, "YYYY-MM-dd");
-    this.backSrv.getKpis({
-      date: dateStr === null ? undefined : dateStr,
-      route_id: this.routeId,
-      bucket_min: this.bucketMin,
-      lf: this.lf,
-      hf: this.hf,
-      mult: this.mult
-    }).subscribe(
+    // const dateStr = this.datePipe.transform(this.date, "YYYY-MM-dd");
+    const searchParams = this.form.getRawValue();
+    console.log("These are the search params ", searchParams);
+    this.backSrv.getKpis(
+      searchParams
+    ).subscribe(
       (rows: KPIBucket[]) => {
         this.render(rows ?? []);
       },
@@ -195,10 +207,10 @@ export class CapacityPage {
           { label: 'Capacity',   data: capacity,   yAxisID: 'y' },
           { type: 'line', label: 'Load Factor', data: lfSeries, yAxisID: 'y1',
             tension: 0.3, borderWidth: 2, pointRadius: 2 },
-          { type: 'line', label: `LF Low Threshold ${this.lf}`,
-            data: lfSeries.map(_ => this.lf), yAxisID: 'y1', borderDash: [6,4], pointRadius: 0 },
-          { type: 'line', label: `LF High Threshold ${this.hf}`,
-            data: lfSeries.map(_ => this.hf), yAxisID: 'y1', borderDash: [6,4], pointRadius: 0 }
+          { type: 'line', label: `LF Low Threshold ${this.form.controls.lf.value}`,
+            data: lfSeries.map(_ => this.form.controls.lf.value), yAxisID: 'y1', borderDash: [6,4], pointRadius: 0 },
+          { type: 'line', label: `LF High Threshold ${this.form.controls.hf.value}`,
+            data: lfSeries.map(_ => this.form.controls.hf.value), yAxisID: 'y1', borderDash: [6,4], pointRadius: 0 }
         ]
       },
       options: {
@@ -253,7 +265,10 @@ export class CapacityPage {
 
   onLineInputChange(ev: any) {
     // console.log("Evnet ", ev.data);
-    this.backSrv.lineSearch(this.lineId.toString()).subscribe(
+    if(this.form.controls.lineId.value === null) {
+      return;
+    }
+    this.backSrv.lineSearch(this.form.controls.lineId.value).subscribe(
       (values) => {
         this.filteredLine = values.data;
       }
