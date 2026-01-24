@@ -1,12 +1,10 @@
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { RouterOutlet } from "@angular/router";
 import { AlertComponent } from "../../components/alert/alert.component";
-import { GeneralSerivce } from "../../service/general.service";
-import { KeycloakService } from "keycloak-angular";
+import { GeneralService } from "../../service/general.service";
 import * as feather from 'feather-icons';
 import { ThemeService } from "../../service/theme.service";
-import { environment } from "../../../environments/environment";
 import { OAuthService } from "../../service/oauth.service";
 import { KeycloakProfile } from "keycloak-js";
 
@@ -25,10 +23,11 @@ export class OAuthComponent implements OnInit {
   private _dropdownShow: boolean = false;
   private _profile!: KeycloakProfile;
   constructor(
-    private _generalService: GeneralSerivce,
+    private _generalService: GeneralService,
     // private keycloak: KeycloakService,
     private oauthSrv: OAuthService,
     public themeSrv: ThemeService,
+    private cdr: ChangeDetectorRef
   ) {
 
   }
@@ -46,11 +45,18 @@ export class OAuthComponent implements OnInit {
         }
       }
     );
-    // this.oauthSrv.loadProfile.then(
-    //   (data) => {
-    //     this._profile = data;
-    //   }
-    // );
+    this.loadUserProfile();
+    this.oauthSrv.getRoles();
+  }
+
+  async loadUserProfile() {
+    this._profile = await this.oauthSrv.loadUSerProfile();
+    this.cdr.detectChanges();
+    feather.replace();
+  }
+
+  logOut() {
+    this.oauthSrv.logout();
   }
 
   get generalService() {
@@ -64,14 +70,6 @@ export class OAuthComponent implements OnInit {
   ngAfterViewInit() {
     feather.replace();
   }
-
-  // isAuthindicate() {
-  //   return this.keycloak.isLoggedIn();
-  // }
-
-  // logOut() {
-  //   this.keycloak.logout(environment.auth_config.end_session_redirect_url);
-  // }
 
   openDropDown() {
     // debugger;
@@ -93,6 +91,7 @@ this._dropdownShow = !this._dropdownShow;
   }
 
   get profile() {
+    // feather.replace();
     return this._profile;
   }
 }

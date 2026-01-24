@@ -1,4 +1,4 @@
-import { GeneralSerivce } from './../../../service/general.service';
+import { GeneralService } from './../../../service/general.service';
 import { BackendService } from '../../../service/backend.service';
 import { CronjobRec } from '../../../models/models.interface';
 import { CommonModule } from "@angular/common";
@@ -8,12 +8,15 @@ import { MatButtonModule } from "@angular/material/button";
 import { Router } from '@angular/router';
 import { PaginationComponent } from '../../../components/pagination/pagination.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { BsModalService } from 'ngx-bootstrap/modal';
+import { ErrorComponent } from '../../../components/error_component/error.component';
 
 @Component({
   selector: "app-jobs-page",
   templateUrl: "jobs.page.html",
   styleUrl: "jobs.page.scss",
   imports: [FormsModule, MatButtonModule, CommonModule, MatPaginatorModule],
+  providers: [BsModalService],
   standalone: true,
 })
 export class JobPage implements OnInit{
@@ -25,7 +28,8 @@ export class JobPage implements OnInit{
   constructor(
     private backSrv: BackendService,
     private router: Router,
-    private generalSrv: GeneralSerivce
+    private generalSrv: GeneralService,
+    private modalSrv: BsModalService
   ) {
 
   }
@@ -70,6 +74,13 @@ export class JobPage implements OnInit{
     );
   }
 
+  openErrorDetails(job: CronjobRec) {
+    const initialState = {
+      errorDescr: job.error
+    };
+    this.modalSrv.show(ErrorComponent, {initialState});
+  }
+
   onPageClick(ev: any, i: number) {
     this.currentPage = i;
     this.getDataFromPage();
@@ -108,5 +119,16 @@ export class JobPage implements OnInit{
 
   returnHome(ev: any) {
     this.router.navigate(["/"]);
+  }
+
+  statusClass(job: CronjobRec) {
+    switch(job.status) {
+      case "success":
+        return "badge-soft-success";
+      case "fail":
+        return "badge-soft-danger";
+      default:
+        return "badge-soft-unknown";
+    }
   }
 }

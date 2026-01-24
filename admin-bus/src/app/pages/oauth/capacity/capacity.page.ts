@@ -11,6 +11,8 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MAT_DATE_LOCALE, MatOptionSelectionChange, provideNativeDateAdapter } from "@angular/material/core";
+import { GeneralService } from "../../../service/general.service";
+import { HttpErrorResponse } from "@angular/common/http";
 
 export interface KPIBucket {
   slot_start: string;   // "HH:MM:SS"
@@ -64,16 +66,17 @@ export class CapacityPage {
   mult = 1.0;
 
   loading = false;
-  message = '';
   chart?: Chart;
 
   constructor(
     private backSrv: BackendService,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private generalService: GeneralService
   ) {}
 
   ngOnInit(): void {
-    this.load();
+    // this.load();
+    this.render([])
   }
 
   ngOnDestroy(): void {
@@ -81,30 +84,31 @@ export class CapacityPage {
   }
 
   async load() {
-    this.message = '';
     this.loading = true;
     this.destroyChart();
 
     const dateStr = this.datePipe.transform(this.date, "YYYY-MM-dd");
-    if(dateStr) {
-      try {
-        const rows = await this.backSrv.getKpis({
-          date: dateStr,
-          route_id: this.routeId,
-          bucket_min: this.bucketMin,
-          lf: this.lf,
-          hf: this.hf,
-          mult: this.mult
-        }).toPromise();
-
+    this.backSrv.getKpis({
+      date: dateStr === null ? undefined : dateStr,
+      route_id: this.routeId,
+      bucket_min: this.bucketMin,
+      lf: this.lf,
+      hf: this.hf,
+      mult: this.mult
+    }).subscribe(
+      (rows: KPIBucket[]) => {
         this.render(rows ?? []);
-      } catch (e: any) {
-        this.message = `Σφάλμα: ${e?.message || e}`;
-      } finally {
+      },
+      (error: HttpErrorResponse) => {
+        this.generalService.showDangerAlert(error.error.error);
+        this.render([]);
+        console.log("Error fetching KPI data ", error);
+        this.loading = false;
+      },
+      () => {
         this.loading = false;
       }
-    }
-
+    );
   }
 
   resetZoom() {
@@ -116,10 +120,11 @@ export class CapacityPage {
   }
 
   private render(rows: KPIBucket[]) {
-    if (!rows?.length) {
-      this.message = 'Δεν βρέθηκαν δεδομένα.';
-      return;
-    }
+    // if (!rows?.length) {
+    //   // this.message = 'Δεν βρέθηκαν δεδομένα.';
+    //   this.generalService.showWarningAlert("Δεν βρέθηκαν δεδομένα.");
+    //   return;
+    // }
 
     const labels = rows.map(r => (r.slot_start || '').slice(0, 5));
     const passengers = rows.map(r => r.pass_sum || 0);

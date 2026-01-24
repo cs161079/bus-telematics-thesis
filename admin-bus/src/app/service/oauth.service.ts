@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import { KeycloakEvent, KeycloakEventType, KeycloakService } from "keycloak-angular";
+import { environment } from "../../environments/environment";
 
 
 @Injectable({
@@ -44,12 +45,24 @@ export class OAuthService {
 
   }
 
+  async loadUSerProfile() {
+    const profile = await this.keycloak.loadUserProfile();
+    console.log('User Profile:', profile);
+    return profile;
+  }
+
+  getRoles() {
+    const roles = this.keycloak.getUserRoles();
+    console.log("User roles:", roles);
+    return roles;
+  }
+
   get isLoggedIn(): boolean {
     return this.keycloak.isLoggedIn();
   }
 
   logout(): void {
-    this.keycloak.logout('http://localhost:4200');
+    this.keycloak.logout(environment.auth_config.end_session_redirect_url);
   }
 
   getToken() {

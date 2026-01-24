@@ -27,79 +27,27 @@ type adminControllerImpl struct {
 }
 
 func NewAdminController(dbConnection *gorm.DB, svc service.NotificationService, trafficSrv service02.TrafficService,
-
-// verif *oidc.IDTokenVerifier
+	verif *oidc.IDTokenVerifier,
 ) AdminController {
 	return &adminControllerImpl{
 		connection: dbConnection,
 		ntSvc:      svc,
-		// verifier:   verif,
+		verifier:   verif,
 		trafficSrv: trafficSrv,
 	}
 }
 
 func (c *adminControllerImpl) AddRouters(eng *gin.RouterGroup) {
 	apiGroup := eng.Group("/admin")
-	// apiGroup.Use(keycloak.AuthMiddleware(c.verifier))
+	apiGroup.Use(keycloak.AuthMiddleware(c.verifier))
 	apiGroup.POST("/push", keycloak.RequireRole("oasa-admin"), c.pushNotification)
 	apiGroup.GET("/jobs", c.jobList)
 	apiGroup.GET("/lines/search", c.lineSearch)
 	apiGroup.GET("/routes/:line_code", c.routeByLineCode)
-	// Επιπλεόν endpoint για την πρόταση δρομολογίων.
-	// 1) Με Queries Parameters date=YYYY-MM-DD, route_id=123
-	// GET /capacity?date=YYYY-MM-DD&route_id=123
-	apiGroup.GET("/capacity", c.getCapacity)
 
 	// GET /kpis?date=YYYY-MM-DD&route_id=123&bucket_min=15&lf=0.85&peak=0.95&mult=1.0
 	apiGroup.GET("/kpis", c.getKpis)
 
-}
-
-func (c *adminControllerImpl) getCapacity(ctx *gin.Context) {
-	date := ctx.Query("date")
-	route_id, err := utils.StrToInt32(ctx.Query("route_id"))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Route code parameter is not a valid number."})
-		return
-	}
-
-	bus_id := utils.StrToInt32Def(ctx.Query("bus_id"), 0)
-
-	searchByBusId := bus_id != 0
-	var dbResults []BusCapDto = make([]BusCapDto, 0)
-
-	dateFrom := date + " 00:00"
-	dateTo := date + " 23:00"
-
-	tx := c.connection.Table(db.BUSCAPACITY).
-		Where("route_id=?", route_id).
-		Where("date_time >= ?  AND date_time < ?", dateFrom,
-			dateTo)
-	if searchByBusId {
-		tx.Where("bus_id=?", bus_id)
-	}
-	if err := tx.Order("route_id, date_time").
-		Find(&dbResults).Error; err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	// var busIdResults []interface{} = make([]interface{}, 0)
-	// var finalResults []interface{} = make([]interface{}, 0)
-	// var busId = dbResults[0].Bus_Id
-	finalResults := make([]interface{}, 0)
-	for i, _ := range dbResults {
-		finalResults = append(finalResults, map[string]any{
-			"x": dbResults[i].Date_Time,
-			"y": dbResults[i].Bus_Pass,
-		})
-	}
-
-	ctx.JSON(http.StatusOK, map[string]any{
-		"route_id": route_id,
-		"max":      85,
-		"data":     finalResults,
-	})
 }
 
 func (c *adminControllerImpl) routeByLineCode(ctx *gin.Context) {
@@ -192,13 +140,17 @@ func (c *adminControllerImpl) jobList(ctx *gin.Context) {
 func (c *adminControllerImpl) getKpis(ctx *gin.Context) {
 	date := ctx.Query("date")
 	routeIDStr := ctx.Query("route_id")
-	if date == "" || routeIDStr == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "params required: date, route_id"})
+	if date == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "No date provided."})
+		return
+	}
+	if routeIDStr == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "No route code provided."})
 		return
 	}
 	routeID, err := utils.StrToInt32(routeIDStr)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "route_id must be integer"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Route code must be a valid number."})
 		return
 	}
 

@@ -2,7 +2,8 @@ import { Routes } from '@angular/router';
 import { AuthGuard } from './guard/app.guard';
 import { HomePage } from './pages/unoauth/home/home.page';
 import { OAuthComponent } from './pages/oauth/oauth.component';
-import { LoginGuard } from './guard/login.guard';
+import { RoleGuard } from './guard/role.guard';
+
 
 export const routes: Routes = [
   {
@@ -15,6 +16,7 @@ export const routes: Routes = [
         children: [
           {
             path: 'push-notification',
+            canActivate: [RoleGuard],
             loadComponent: () => import('./pages/oauth/push-notification/push-notification.component').then(m => m.PushNotificationComponent),
           },
           {
@@ -40,7 +42,6 @@ export const routes: Routes = [
       {
         path: "home",
         component: HomePage,
-        canActivate: [LoginGuard]
       }
     ]
   },

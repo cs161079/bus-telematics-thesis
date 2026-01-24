@@ -5,7 +5,7 @@ import { AlertRec, AlertType } from "../models/models.interface";
 @Injectable({
   providedIn: "root"
 })
-export class GeneralSerivce {
+export class GeneralService {
 
   private _alerts: BehaviorSubject<AlertRec | undefined>;
   constructor() {

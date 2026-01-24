@@ -1,6 +1,6 @@
 import { APP_INITIALIZER, Component, importProvidersFrom } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { GeneralSerivce } from './service/general.service';
+import { GeneralService } from './service/general.service';
 import { AlertComponent } from './components/alert/alert.component';
 import { CommonModule } from '@angular/common';
 import { KeycloakEvent, KeycloakEventType, KeycloakService } from 'keycloak-angular';
@@ -19,7 +19,7 @@ export class AppComponent {
   title = 'Notification Panel';
 
   constructor(
-    private _generalServ: GeneralSerivce,
+    private _generalServ: GeneralService,
     private keycloak: KeycloakService
   ) {
     this.initializeApp();

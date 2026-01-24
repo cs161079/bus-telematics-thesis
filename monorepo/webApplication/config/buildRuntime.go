@@ -11,6 +11,7 @@ import (
 	"github.com/cs161079/monorepo/common/service"
 	logger "github.com/cs161079/monorepo/common/utils/goLogger"
 	"github.com/cs161079/monorepo/webApplication/controllers"
+	"github.com/cs161079/monorepo/webApplication/keycloak"
 	service02 "github.com/cs161079/monorepo/webApplication/service"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -143,7 +144,7 @@ func BuildInRuntime() (*App, error) {
 		service.NewBusService,
 		service02.NewOtpService,
 		service02.NewTrafficService,
-		// keycloak.NewKeycloakService,
+		keycloak.NewKeycloakService,
 		controllers.NewPrometheusController,
 		controllers.NewAdminController,
 		controllers.NewExtApiController,

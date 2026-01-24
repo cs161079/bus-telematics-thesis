@@ -21,6 +21,22 @@ export class BackendService {
     return this.httpClnt.post(url, rec);
   }
 
+  private mapCronjobRec(rec: any): CronjobRec {
+    const runTime = rec.runtime && rec.runtime !== "null" ? new Date(rec.runtime.replace(' ', 'T')) : undefined;
+    const endTime = rec.finishtime && rec.finishtime !== "null" ? new Date(rec.finishtime.replace(' ', 'T')) : undefined;
+    let result = "uknown";
+    if((!rec.errorDescr || rec.errorDescr !== "") && endTime) {
+      result = rec.errorDescr && rec.errorDescr !== "" ? "fail" : "success"
+    }
+    return {
+      id: rec.id,
+      error: rec.errorDescr,
+      status: result,
+      start: runTime,
+      finish: endTime
+    };
+  }
+
   getJobsPaging(page: number): Observable<PagingData> {
     const url =  `${environment.server}/admin/jobs?page=${page}`
     return this.httpClnt.get(url).pipe(
@@ -28,13 +44,7 @@ export class BackendService {
         const dataArr: CronjobRec[] = [];
         const inData : any[] = valueBody.pagingData.data;
         inData.forEach((rec) => {
-          dataArr.push({
-            id: rec.id,
-            error: rec.errorDescr,
-            status:rec.errorDescr && rec.errorDescr !== "" ? "fail" : "success",
-            start: rec.runtime && rec.runtime !== "null" ? new Date(rec.runtime.replace(' ', 'T')) : undefined,
-            finish: rec.finishtime && rec.finishtime !== "null" ? new Date(rec.finishtime.replace(' ', 'T')) : undefined,
-          });
+          dataArr.push(this.mapCronjobRec(rec));
         });
         const returnValue: PagingData = {
           total: valueBody.pagingData.total,
@@ -56,12 +66,12 @@ export class BackendService {
     return this.httpClnt.get(`${environment.server}/admin/routes/${lineCode}`) as Observable<any[]>;
   }
 
-  trafficData(route: number, date: string): Observable<{route_id: number; data: any[]; max: number}> {
-    return this.httpClnt.get(`${environment.server}/admin/traffic?route=${route}&date=${date}`) as Observable<{route_id: number; max: number; data: any[]}>;
-  }
+  // trafficData(route: number, date: string): Observable<{route_id: number; data: any[]; max: number}> {
+  //   return this.httpClnt.get(`${environment.server}/admin/traffic?route=${route}&date=${date}`) as Observable<{route_id: number; max: number; data: any[]}>;
+  // }
 
   getKpis(params: {
-    date: string;
+    date: string | undefined;
     route_id: number | string;
     bucket_min?: number | string;
     lf?: number | string;

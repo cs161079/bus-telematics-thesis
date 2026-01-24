@@ -2,11 +2,12 @@ import { Component, OnInit } from "@angular/core";
 import { FormBuilder, FormsModule, NgForm, ReactiveFormsModule } from "@angular/forms";
 import { AlertType, NotificationRec } from "../../../models/models.interface";
 import { BackendService } from "../../../service/backend.service";
-import { GeneralSerivce } from "../../../service/general.service";
+import { GeneralService } from "../../../service/general.service";
 import { MatButtonModule } from '@angular/material/button';
 import { ThemeService } from "../../../service/theme.service";
 import { CommonModule } from "@angular/common";
 import { Router } from "@angular/router";
+import { HttpErrorResponse } from "@angular/common/http";
 
 
 @Component({
@@ -26,7 +27,7 @@ export class PushNotificationComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private backendService: BackendService,
-    private generalService: GeneralSerivce,
+    private generalService: GeneralService,
     public themeSrv: ThemeService,
     private router: Router
   ) {
@@ -44,8 +45,8 @@ export class PushNotificationComponent implements OnInit {
         (results) => {
 
         },
-        (error) => {
-          this.generalService.showDangerAlert(error.error);
+        (error: HttpErrorResponse) => {
+          this.generalService.showDangerAlert(error.error.error);
         },
         () => {
           this.generalService.showInfoAlert("Notification Pushed succefully!")

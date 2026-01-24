@@ -56,6 +56,7 @@ func (s notificationServiceImpl) SendPushNotification(notEntity models.Notificat
 		Notification: &fcm.Notification{
 			Title: notEntity.Title,
 			Body:  notEntity.Message,
+			Image: s.getImageURL(notEntity.AlertType),
 		},
 	}
 
@@ -70,4 +71,16 @@ func (s notificationServiceImpl) SendPushNotification(notEntity models.Notificat
 	// Log the response
 	logger.INFO(fmt.Sprintf("Successfully sent message: %s", resp.Name))
 	return nil
+}
+
+func (s notificationServiceImpl) getImageURL(notificationType string) string {
+	switch notificationType {
+	case "info":
+		return "https://uat.osses.gr/portal/assets/info.png"
+	case "warning":
+		return "https://uat.osses.gr/portal/assets/warning.png"
+	case "danger":
+		return "https://uat.osses.gr/portal/assets/danger.png"
+	}
+	return ""
 }

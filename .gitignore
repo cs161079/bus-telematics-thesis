@@ -12,3 +12,4 @@ monorepo_internal/.vscode
 monorepo_internal/trip-planner/gtfs/
 *.exe*
 monorepo/cronjob/gtfs
+.vscode
