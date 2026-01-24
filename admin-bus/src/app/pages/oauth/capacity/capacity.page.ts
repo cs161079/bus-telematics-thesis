@@ -132,12 +132,6 @@ export class CapacityPage {
   }
 
   private render(rows: KPIBucket[]) {
-    // if (!rows?.length) {
-    //   // this.message = 'Δεν βρέθηκαν δεδομένα.';
-    //   this.generalService.showWarningAlert("Δεν βρέθηκαν δεδομένα.");
-    //   return;
-    // }
-
     const labels = rows.map(r => (r.slot_start || '').slice(0, 5));
     const passengers = rows.map(r => r.pass_sum || 0);
     const capacity   = rows.map(r => r.cap_sum || 0);

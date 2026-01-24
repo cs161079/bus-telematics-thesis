@@ -47,7 +47,6 @@
       </mat-form-field>
     </div>
     <div class="groups">
-      <!-- <label>Route: <input type="number" [(ngModel)]="routeId" min="1"></label> -->
       <mat-form-field class="width" appearance="outline" style="width: 10%;">
         <mat-label>Bucket (min)</mat-label>
         <input
@@ -82,10 +81,9 @@
         />
       </mat-form-field>
       <button type="submit" [disabled]="loading || form.invalid">Load</button>
-      <button (click)="resetZoom()" [disabled]="!chart">Reset Zoom</button>
+      <button (click)="resetZoom()" [disabled]="form.invalid">Reset Zoom</button>
     </div>
 
   </form>
   <canvas #canvas id="kpi-canvas" style="height: 500px !important;"></canvas>
-  <!-- <p *ngIf="message">{{ message }}</p> -->
 </div>
