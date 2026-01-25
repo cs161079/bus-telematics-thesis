@@ -20,7 +20,7 @@ export class HomePage {
 
   login() {
     this.keycloak.login({
-      redirectUri: environment.auth_config.redirect_url
+      redirectUri: window.location.origin
     });
   }
 }
