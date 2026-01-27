@@ -1,15 +1,18 @@
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { BackendService } from "../service/backend.service";
-import { map, switchMap } from "rxjs";
-import { cbRecord, Direction, LINE_TYPE, LineDto, ScheduleTime } from "../models/lines.interface";
+import { firstValueFrom } from "rxjs";
+import { cbRecord, Direction, Line, LINE_TYPE, LineDetails } from "../models/lines.interface";
 import { ActionSheetButton, ActionSheetController, ModalController } from "@ionic/angular";
 import { DatePipe } from "@angular/common";
 import { LineService } from "../service/line.service";
 import { StorageService } from "../service/storage.service";
 import { StopPage } from "../stopPage/stop.page";
 import * as L from "leaflet";
-import {antPath} from "leaflet-ant-path";
 import { MapService } from "../service/map.service";
+import { ActiveSchedule, BackendService02, Schedule, ScheduleTimes } from "../service/backend02.service";
+import { HttpErrorResponse } from "@angular/common/http";
+import { AppService } from "../service/application.service";
+import { TranslateService } from "@ngx-translate/core";
 
 @Component({
     selector: "app-line-page",
@@ -23,16 +26,18 @@ export class LinePage implements OnInit, OnDestroy{
   private _busLocatInterval: any;
   private _scheduleInterval: any;
 
+  selectedSchedule!: ActiveSchedule
+  selectedSched!: number;
+  line!: LineDetails;
+  lineSchedules!: Schedule[];
+
   @Input()
   line_code: number = -1;
 
   routes: cbRecord[] = [];
-  sches: cbRecord[] = [];
-  altLines: cbRecord[] = [];
-  line!: LineDto;
-  selectedSched!: number;
+  altLines: Line[] = [];
+
   selectedRoute!: number;
-  selectedAltLine!: number;
 
   drawRoute!: any;
 
@@ -43,7 +48,10 @@ export class LinePage implements OnInit, OnDestroy{
       private datePipe: DatePipe,
       public lineSrv: LineService,
       private storageSrv: StorageService,
-      private mapSrv: MapService
+      private mapSrv: MapService,
+      private back02: BackendService02,
+      private appSrv: AppService,
+      private translate: TranslateService
   ) {
 
   }
@@ -60,46 +68,56 @@ export class LinePage implements OnInit, OnDestroy{
     this.mapSrv.initMap01();
   }
 
-  getLineInformation(line_code: number) {
-      this.line_code = line_code;
-      this.backendSrv.getLineCbs(this.line_code).pipe(
-          switchMap((val) => {
-              this.routes = val.routesCb;
-              this.sches = val.sdcCb;
-              return this.backendSrv.getLineByCode(this.line_code);
-          }),
-          switchMap((val) => {
-              this.line = val;
-              this.selectedRoute = val.routes[0].route_code;
-              this.selectedSched = val.schedule.sdc_code;
-              return this.backendSrv.getAltLineCbs(this.line.line_id);
-          })
-      ).subscribe(
-          (val) => {
-              this.selectedAltLine = this.line.line_code;
-              this.altLines = val;
-          },
-          (error) => {
-              console.log("Error Occured ", error);
-          },
-          () => {
-            console.log("🚀~ onSelectAltLine()");
-            this.itsTime(Direction.come);
-            this.itsTime(Direction.go);
-          }
+  // getLineInfor
+
+  private loadFullLine(line_code: number) {
+    this.line_code = line_code;
+    this.getLineInfo().then(
+        (data) => {
+          this.line = data;
+          this.getSchedules();
+          this.getAltLines();
+        }
       );
   }
 
-  ionViewWillEnter() {
-      this.getLineInformation(this.line_code);
+  private async getLineInfo() {
+    return await firstValueFrom(this.back02.getLineDetail(this.line_code));
   }
 
-    private getActionBtns(dataArr: cbRecord[]): ActionSheetButton[] {
+  private getSchedules() {
+    this.back02.getSchedules(this.line.sdc_code, this.line.line_code).subscribe(
+      (data) => {
+        this.selectedSchedule = data.active_schedule;
+        this.lineSchedules = data.schedules;
+        this.selectedSched = data.active_schedule.sdc_code;
+      }
+    )
+  }
+
+  ionViewWillEnter() {
+    this.loadFullLine(this.line_code);
+  }
+
+  getAltLines() {
+    this.back02.getAltLineCbs(this.line.line_id).subscribe(
+      (data) => {
+        this.altLines = data;
+      },
+      (error: HttpErrorResponse) => {
+        console.log("On Alternative lines Request ", error);
+      }
+    );
+  }
+
+    private getActionBtns(dataArr: cbRecord[], selectedVal?: any): ActionSheetButton[] {
         let result: ActionSheetButton[] = [];
         dataArr.forEach((rec) => {
             result.push({
                 text: rec.descr,
                 data: rec.code,
+                icon: rec.code === selectedVal ? 'checkmark-outline' : undefined,
+                cssClass: rec.code === selectedVal ? 'selected-val-action-sheet' : undefined,
                 handler() {
                     console.log(`Recod with code ${rec.code} and Description ${rec.descr} is selected.`);
                 },
@@ -108,11 +126,11 @@ export class LinePage implements OnInit, OnDestroy{
         return result;
     }
 
-    async openGlobalAction(title: string, data: cbRecord[], onDismissCallback: (code: number) => void) {
+    async openGlobalAction(title: string, data: cbRecord[], onDismissCallback: (code: number) => void, selectedVal?: any) {
       const actions = await this.actionCtrl.create({
         header: title,
         mode: "ios",
-        buttons: this.getActionBtns(data)
+        buttons: this.getActionBtns(data, selectedVal)
       });
       await actions.present();
       const returnedData = (await actions.onDidDismiss()).data;
@@ -122,52 +140,64 @@ export class LinePage implements OnInit, OnDestroy{
     }
 
     onSelectRoute(ev: any) {
-      this.openGlobalAction("Επιλογή διαδρομής", this.routes, (returnedCode: number) => {
-        this.selectedRoute = returnedCode;
-        this.backendSrv.getRouteByCode(this.selectedRoute).pipe(
-          switchMap((data) => {
-            this.line.routes = [data];
-            return this.backendSrv.getBusLocation(data.route_code);
-          })
-        ).subscribe(
-          (response) => {
-            if(response) {
-              this.mapSrv.addBusPosition(response);
-            }
-          },
-          (error) => {
-            console.log("Error occured on route retrieve. [" +  JSON.stringify(error) + "].");
-          },
-          async () => {
-            this.drawRoute = await this.mapSrv.drawRoute(this.selectedRoute);
-          }
-        )
-      });
+      // this.openGlobalAction("Επιλογή διαδρομής", this.routes, (returnedCode: number) => {
+      //   this.selectedRoute = returnedCode;
+      //   this.backendSrv.getRouteByCode(this.selectedRoute).pipe(
+      //     switchMap((data) => {
+      //       this.line.routes = [data];
+      //       return this.backendSrv.getBusLocation(data.route_code);
+      //     })
+      //   ).subscribe(
+      //     (response) => {
+      //       if(response) {
+      //         this.mapSrv.addBusPosition(response);
+      //       }
+      //     },
+      //     (error) => {
+      //       console.log("Error occured on route retrieve. [" +  JSON.stringify(error) + "].");
+      //     },
+      //     async () => {
+      //       this.drawRoute = await this.mapSrv.drawRoute(this.selectedRoute);
+      //     }
+      //   )
+      // });
     }
 
-    onSelectAltLine(ev: any) {
-      this.openGlobalAction("Εναλλακτική Γραμμή", this.altLines, (returnedCode: number) => {
-        this.selectedAltLine = returnedCode;
-        this.getLineInformation(this.selectedAltLine);
-      });
+    async onSelectAltLine(ev: any) {
+      this.openGlobalAction(await firstValueFrom(this.translate.get("ALT_LINES")), this.altLines.map((val) => {
+        return {code: val.line_code, descr: this.appSrv.language === 'el' ? val.line_descr : val.line_descr_eng}
+      }),
+        (returnedCode: number) => {
+          this.loadFullLine(returnedCode);
+        },
+        this.line_code
+      );
     }
 
     onSelectSchedule(ev: any) {
-      this.openGlobalAction("Προγράμματα", this.sches, (returnedCode: number) => {
-        this.selectedSched = returnedCode;
-        this.backendSrv.getScheduleDetails(returnedCode, this.line.line_code).subscribe(
-          (response) => {
-            this.line.schedule = response;
-          },
-          (error) => {
-            console.log("Error occured on get schedule details [" + JSON.stringify(error) + "].");
-          },
-          () => {
-            this.itsTime(Direction.come);
-            this.itsTime(Direction.go)
+      this.openGlobalAction("Προγράμματα",
+        this.lineSchedules.map((val, indx, arr) => {
+          return {
+            code: val.sdc_code,
+            descr: val.sdc_descr
           }
-        )
-      });
+        }),
+        (returnedCode: number) => {
+          this.selectedSched = returnedCode;
+          this.back02.getScheduleDetails(returnedCode, this.line.line_code).subscribe(
+            (response) => {
+              this.selectedSchedule = response;
+            },
+            (error) => {
+              console.log("Error occured on get schedule details [" + JSON.stringify(error) + "].");
+            },
+            () => {
+              this.itsTime(Direction.come);
+              this.itsTime(Direction.go)
+            }
+          )
+        }
+      );
     }
 
     getSelectedRouteDescr() {
@@ -236,37 +266,43 @@ export class LinePage implements OnInit, OnDestroy{
       );
     }
 
-    getSelectedRAltLineDescr() {
+    getSelectedAltLineDescr() {
         const result = this.altLines.find(rec =>
-            rec.code === this.selectedAltLine
-        )?.descr;
+            rec.line_code === this.line_code
+        );
+        if(!result) {
+          return;
+        }
 
-        return result;
+        return this.appSrv.language === 'el' ? result.line_descr : result.line_descr_eng;
     }
 
     getSelectedSchedDescr() {
-      const result = this.sches.find(rec =>
-          rec.code === this.selectedSched
-      )?.descr;
+      const result = this.lineSchedules.find(rec =>
+          rec.sdc_code === this.selectedSched
+      )?.sdc_descr;
 
       return result;
-  }
+    }
 
     getSelectedRoute() {
         //debugger;
-        return this.line.routes.find(x => x.route_code === this.selectedRoute);
+        // return this.line.routes.find(x => x.route_code === this.selectedRoute);
     }
 
     onBackdrop(ev: any) {
         this.modalCtrl.dismiss();
     }
 
-    filterAboutDirection(direction: number): ScheduleTime[] {
-        return this.line.schedule.times.filter(x => x.direction === direction);
+    filterAboutDirection(direction: number): ScheduleTimes[] {
+        return this.selectedSchedule.times.filter(x => x.direction === direction);
     }
 
     showList(direction: number): boolean {
-        return this.line?.schedule.times.filter(x => x.direction === direction).length > 0;
+      if(!this.selectedSchedule) {
+        return false;
+      }
+      return this.selectedSchedule.times.filter(x => x.direction === direction).length > 0;
     }
 
     getLineCode() {
@@ -279,33 +315,33 @@ export class LinePage implements OnInit, OnDestroy{
 
     itsTime(direction: number) {
       // filter only one directoin Times
-      const directionTimes = this.line.schedule.times.filter(x => x.direction === direction);
+      // const directionTimes = this.selectedSchedule.times.filter(x => x.direction === direction);
 
-      if(directionTimes.length > 0) {
-        // debugger;
-        const nowDate = new Date();
+      // if(directionTimes.length > 0) {
+      //   // debugger;
+      //   const nowDate = new Date();
 
-        //get Time for NOW
-        const now = nowDate.getTime();
+      //   //get Time for NOW
+      //   const now = nowDate.getTime();
 
-        const nowDateStr = this.datePipe.transform(now, "yyyy-MM-dd");
-        const previousTime = directionTimes.find(x => x.itsTime === true);
-        if (previousTime) {
-          previousTime.itsTime = false;
-        }
-        const nextTime = directionTimes.find(x => (new Date(nowDateStr + "T" + x.start_time).getTime() - now) >=0);
-        if(nextTime) {
-          nextTime.itsTime = true;
-        }
+      //   const nowDateStr = this.datePipe.transform(now, "yyyy-MM-dd");
+      //   const previousTime = directionTimes.find(x => x.itsTime === true);
+      //   if (previousTime) {
+      //     previousTime.itsTime = false;
+      //   }
+      //   const nextTime = directionTimes.find(x => (new Date(nowDateStr + "T" + x.start_time).getTime() - now) >=0);
+      //   if(nextTime) {
+      //     nextTime.itsTime = true;
+      //   }
 
-        if(directionTimes.findIndex(x => x.itsTime === true) == -1) {
-          directionTimes[0].itsTime = true;
-        }
-      }
+      //   if(directionTimes.findIndex(x => x.itsTime === true) == -1) {
+      //     directionTimes[0].itsTime = true;
+      //   }
+      // }
     }
 
     addOnFavLine() {
-      this.lineSrv.addOrRemoveLineToFavorite(this.line);
+      this.lineSrv.addOrRemoveLineToFavorite({...this.line});
     }
 
     async onOpenStop(ev: any, stop_code: number) {

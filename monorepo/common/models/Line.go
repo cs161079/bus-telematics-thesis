@@ -55,18 +55,22 @@ func (Line) TableName() string {
 	return db.LINETABLE
 }
 
+/*******************************************
+Struct for Bus Lines Details DTO
+******************************************
+*/
 type LineDto struct {
-	Id             int64          `json:"id"`
-	Ml_Code        int16          `json:"ml_code"`
-	Sdc_Cd         int32          `json:"sdc_code"`
-	Line_Code      int32          `json:"line_code"`
-	Line_Id        string         `json:"line_id"`
-	Line_Descr     string         `json:"line_descr"`
-	Line_Descr_Eng string         `json:"line_descr_eng"`
-	Mld_master     int8           `json:"mld_master"`
-	LineType       int8           `json:"line_type"`
-	Route          RouteDto       `json:"route"`
-	Schedule       ScheduleMaster `json:"schedule"`
+	// Id             int64          `json:"id"`
+	Ml_Code        int16  `json:"ml_code"`
+	Sdc_Cd         int32  `json:"sdc_code"`
+	Line_Code      int32  `json:"line_code"`
+	Line_Id        string `json:"line_id"`
+	Line_Descr     string `json:"line_descr"`
+	Line_Descr_Eng string `json:"line_descr_eng"`
+	Mld_master     int8   `json:"mld_master"`
+	LineType       int8   `json:"line_type"`
+	// Route          RouteDto       `json:"route"`
+	// Schedule       ScheduleMaster `json:"schedule"`
 }
 
 const (
@@ -80,14 +84,17 @@ type ComboRec struct {
 	Descr string `json:"descr"`
 }
 
+/*
+******************************************
+Struct for Bus Lines List DTO
+******************************************
+*/
 type LineDto01 struct {
-	Ml_Code        int16  `json:"ml_code"`
-	Sdc_Code       int16  `json:"sdc_code"`
 	Line_Code      int32  `json:"line_code"`
 	Line_Id        string `json:"line_id"`
 	Line_Descr     string `json:"line_descr"`
 	Line_Descr_Eng string `json:"line_descr_eng"`
-	Line_Type      int8   `json:"line_type"`
+	LineType       int8   `json:"line_type"`
 }
 
 type LineM struct {

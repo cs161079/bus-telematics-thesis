@@ -6,6 +6,7 @@
 export interface BasicStopDto {
   stop_code: number;
   stop_descr: string;
+  stop_descr_eng: string;
   stop_lat: number;
   stop_lng: number;
 }

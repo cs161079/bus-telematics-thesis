@@ -1,9 +1,13 @@
+import { firstValueFrom } from 'rxjs';
 import { Component, OnInit } from '@angular/core';
 import { Line, LINE_TYPE } from '../models/lines.interface';
 import { BackendService } from '../service/backend.service';
 import { NavigationService } from '../service/navigation.service';
-import { debounceTime } from 'rxjs';
+import { debounceTime, Subscription } from 'rxjs';
 import { LineService } from '../service/line.service';
+import { AppService } from '../service/application.service';
+import { BackendService02 } from '../service/backend02.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-tab2',
@@ -18,10 +22,15 @@ export class Tab2Page implements OnInit {
   isLoading: boolean = false;
   skeletonArray = [1,2];
 
+  private $onLanguageChangeSubscription!: Subscription;
+
   constructor(
     private backend: BackendService,
+    private backend02: BackendService02,
     private navSrv: NavigationService,
-    public lineSrv: LineService
+    public lineSrv: LineService,
+    private appSrv: AppService,
+    private translate: TranslateService
   ) {
 
   }
@@ -31,21 +40,33 @@ export class Tab2Page implements OnInit {
   // }
 
   ngOnInit(): void {
-    this.getLineData();
+    console.log("ngOnInit ")
   }
 
   ionViewDidEnter() {
-    this.navSrv.activeTitle.next("Βρες Γραμμές ή στάσεις");
-    // this.lineSrv.getRecentLines().then((vals) => {
-    //   this.recentLines = vals;
-    // });
+    this.$onLanguageChangeSubscription = this.appSrv.onLanguageChange.subscribe(
+      async (currentLang) => {
+        debugger;
+        if(currentLang) {
+          const title = await firstValueFrom(this.translate.get("LINE_SEARCH"));
+          this.navSrv.activeTitle.next(title);
+          this.getLineData();
+        }
+      }
+    );
+  }
+
+  ionViewWillLeave() {
+    if(this.$onLanguageChangeSubscription) {
+      this.$onLanguageChangeSubscription.unsubscribe();
+    }
   }
 
   getLineData() {
     this.isLoading = true;
-    this.backend.getLines().subscribe(
+    this.backend02.getLines().subscribe(
       (data) => {
-        this.lines = data.lines;
+        this.lines = data;
       },
       (error) => {
         console.log("Error occured ", error);

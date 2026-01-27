@@ -5,10 +5,10 @@ import { BehaviorSubject } from "rxjs";
   providedIn: "root"
 })
 export class NavigationService {
-  private _activeTitle!: BehaviorSubject<string>;
+  private _activeTitle!: BehaviorSubject<string | undefined>;
 
   constructor() {
-    this._activeTitle = new BehaviorSubject<string>("");
+    this._activeTitle = new BehaviorSubject<string | undefined>(undefined);
   }
 
   get activeTitle() {

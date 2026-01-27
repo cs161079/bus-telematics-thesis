@@ -1,5 +1,6 @@
 import { Component, Input } from "@angular/core";
 import { Line, LINE_TYPE } from "src/app/models/lines.interface";
+import { AppService } from "src/app/service/application.service";
 
 @Component({
   selector: "app-line",
@@ -9,7 +10,9 @@ import { Line, LINE_TYPE } from "src/app/models/lines.interface";
 export class LineRowComponent {
 
   private _lineRec!: Line;
-  constructor() {
+  constructor(
+    private appSrv: AppService
+  ) {
 
   }
 
@@ -28,5 +31,9 @@ export class LineRowComponent {
 
     get trolleyType() {
       return LINE_TYPE.TROLLEY;
+    }
+
+    getLineDescription(rec: Line) {
+      return this.appSrv.language === 'el' ? rec.line_descr : rec.line_descr_eng;
     }
 }

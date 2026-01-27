@@ -19,8 +19,15 @@
   <div #Sidenav class="sidenav menu" style="display: flex;">
       <!-- <a class="closebtn" (click)="closeNav()">&times;</a> -->
       <div class="menu-items">
-        <a (click)="navigate('/tabs/tabs/tab1')">Αρχική</a>
-        <a (click)="navigate('/settings')">Ρυθμίσεις</a>
+        <a (click)="navigate('/tabs/tabs/tab1')">{{'HOME' | translate}}</a>
+        <ion-item>
+          <img [src]="getFlagSrc()" style="width:24px; margin-right:8px; vertical-align:middle;">
+          <ion-select [value]="appSrv.language" (ionChange)="onLanguageChange($event)">
+            <ion-select-option *ngFor="let lang of languages" [value]="lang.code">
+              <span>{{ lang.name }}</span>
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
       </div>
       <div class="menu-footer">
         <ion-toolbar style="opacity: 0.5; margin-left: 4px;">

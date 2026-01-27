@@ -135,7 +135,7 @@ func (r stopRepository) SelectClosestStops02(latitude float64, longtitude float6
 	if err != nil {
 		return nil, err
 	}
-	rows, err := sqlDb.Query("SELECT s.stop_code, s.stop_descr, s.stop_street, s.stop_lat, s.stop_lng FROM stop s")
+	rows, err := sqlDb.Query("SELECT s.stop_code, s.stop_descr, s.stop_descr_eng, s.stop_street, s.stop_lat, s.stop_lng FROM stop s")
 	if err != nil {
 		return nil, err
 	}
@@ -146,7 +146,8 @@ func (r stopRepository) SelectClosestStops02(latitude float64, longtitude float6
 	for rows.Next() {
 		var stopDto models.StopDto
 		// var stop models.Stop
-		if err := rows.Scan(&stopDto.Stop_code, &stopDto.Stop_descr, &stopDto.Stop_street, &stopDto.Stop_lat, &stopDto.Stop_lng); err != nil {
+		if err := rows.Scan(&stopDto.Stop_code, &stopDto.Stop_descr, &stopDto.Stop_descr_eng, &stopDto.Stop_street,
+			&stopDto.Stop_lat, &stopDto.Stop_lng); err != nil {
 			continue
 		}
 		// mapper.MapStruct(stop, &stopDto)

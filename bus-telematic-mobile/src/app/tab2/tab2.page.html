@@ -11,12 +11,12 @@
         <input #searchRef class="search_input" type="text" name="" placeholder="Search here..." (input)="onInputChange(searchRef.value)">
         <a href="#" class="search_icon"><i class="fa fa-search"></i></a>
       </div> -->
-      <ion-searchbar mode="ios" animated="true" placeholder="Search Bus Line" (ionInput)="onInputChange($event)" ></ion-searchbar>
+      <ion-searchbar mode="ios" animated="true" [placeholder]="'SEARCH_BUS_LINE' | translate" (ionInput)="onInputChange($event)" ></ion-searchbar>
     </div>
   </div>
   <div class="container-middle">
     <div>
-      <h5 class="title">Πρόσφατες αναζητήσεις</h5>
+      <h5 class="title">{{"RECENT_LINES" | translate}}</h5>
     </div>
     <div class="recent-search-container">
       <div class="recent-search" *ngFor="let line of lineSrv.recentLinesSub | async;" (click)="onSelectLine(line)">
@@ -27,7 +27,7 @@
 
   <div class="container-end">
     <div>
-      <h5 class="title line-list-title">Όλες οι γραμμές</h5>
+      <h5 class="title line-list-title">{{"ALL_LINES" | translate}}</h5>
     </div>
     <ion-list *ngIf="isLoading">
       <ion-item *ngFor="let i of skeletonArray;">
@@ -48,7 +48,8 @@
       </ion-item>
     </ion-list>
     <ion-list *ngIf="!isLoading" class="line-list">
-      <ion-item style="--inner-padding-end: 0px; --inner-padding-start: 0px; height: 60px;;" *ngFor="let line of lines;" (click)="onSelectLine(line)">
+      <ion-item style="--inner-padding-end: 0px; --inner-padding-start: 0px; height: 60px;;" *ngFor="let line of lines;"
+        (click)="onSelectLine(line)">
         <app-line [line]="line"></app-line>
       </ion-item>
     </ion-list>

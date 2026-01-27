@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  server: "https://uat.osses.gr/api/v1",
+  server: "http://192.168.1.2:8083/api/v1",
   notificationTopic: "bus-telematics",
   app: {
     name: "Bus Telematics",

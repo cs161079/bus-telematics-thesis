@@ -1,18 +1,34 @@
 package service
 
 import (
+	"time"
+
 	"github.com/cs161079/monorepo/common/models"
 	"github.com/cs161079/monorepo/common/repository"
 	"gorm.io/gorm"
 )
 
 type ScheduleService interface {
+
+	/* ============================================================================
+	Αυτά είναι μόνο για το cronjob */
 	WithTrx(*gorm.DB) scheduleService
 	DeleteAll() error
 	InsertScheduleArray([]models.ScheduleMaster) ([]models.ScheduleMaster, error)
 	InsertScheduleChunkArray(chunkSize int, allData []models.ScheduleMaster) error
-	SelectByLineSdcCodeWithTimes(int32, int32) (*models.ScheduleMaster, error)
-	SelectCurrentSchedule(int32) (*models.ScheduleMaster, error)
+	// ============================================================================
+
+	/*	===========================================================================
+		SelectByLineSdcCodeWithTimes Αυτή η μέθοδος είναι για να ανακτήσουμε από τη βάση
+		όλα τα προγράματα της γραμμής και τα δρομολόγια που ισχύουν για την ημέρα και το μήνα.
+
+		@param sdc_code
+		@param line_code
+		@return *models.ScheduleCbsDto
+		@return error
+	*/
+	SelectByLineSdcCodeWithTimes(int32, int32) (*models.ScheduleCbsDto, error)
+	SelectScheduleTimes(int32, int32) (*models.ScheduleMasterDto, error)
 
 	ScheduleMasterList() ([]models.ScheduleMaster, error)
 	// =============================================================
@@ -83,12 +99,36 @@ func (s scheduleService) InsertScheduleChunkArray(chunkSize int, allData []model
 	return nil
 }
 
-func (s scheduleService) SelectByLineSdcCodeWithTimes(lineCode int32, sdcCode int32) (*models.ScheduleMaster, error) {
-	return s.repo.SelectByLineSdcCodeWithTimes(lineCode, sdcCode)
+func (s scheduleService) SelectByLineSdcCodeWithTimes(lineCode int32, sdcCode int32) (*models.ScheduleCbsDto, error) {
+	schedules, err := s.repo.ScheduleByLineCode(lineCode)
+	if err != nil {
+		return nil, err
+	}
+
+	currentMonth := int(time.Now().Month())
+	currentDay := time.Now().Weekday()
+	activeSchedule, err := s.repo.SelectCurrentSchedule(lineCode, int8(currentMonth), int8(currentDay))
+	if err != nil {
+		return nil, err
+	}
+	return &models.ScheduleCbsDto{
+		Schedules: schedules,
+		ActiveSchedule: models.ScheduleMasterDto{
+			SDCCode:       activeSchedule.SDCCode,
+			ScheduleTimes: activeSchedule.ScheduleTimes,
+		},
+	}, nil
 }
 
-func (s scheduleService) SelectCurrentSchedule(linCode int32) (*models.ScheduleMaster, error) {
-	return s.repo.SelectCurrentSchedule(linCode)
+func (s scheduleService) SelectScheduleTimes(sdc_code int32, linCode int32) (*models.ScheduleMasterDto, error) {
+	scheduleMaster, err := s.repo.SelectByLineSdcCodeWithTimes(linCode, sdc_code)
+	if err != nil {
+		return nil, err
+	}
+	return &models.ScheduleMasterDto{
+		SDCCode:       scheduleMaster.SDCCode,
+		ScheduleTimes: scheduleMaster.ScheduleTimes,
+	}, nil
 }
 
 func (s scheduleService) ScheduleMasterList() ([]models.ScheduleMaster, error) {

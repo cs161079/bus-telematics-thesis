@@ -9,6 +9,7 @@ import { TabsPage } from './tabs.page';
 import { LinePage } from '../linePage/line.page';
 import { StopPage } from '../stopPage/stop.page';
 import { AppComponentModule } from "../components/app-components.module";
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
@@ -16,7 +17,8 @@ import { AppComponentModule } from "../components/app-components.module";
     CommonModule,
     FormsModule,
     TabsPageRoutingModule,
-    AppComponentModule
+    AppComponentModule,
+    TranslateModule
 ],
   declarations: [TabsPage, LinePage]
 })

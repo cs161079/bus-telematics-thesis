@@ -1,0 +1,17 @@
+{
+  "HOME": "Home",
+  "LANGUAGE": "Language",
+  "LINE_SEARCH": "Search for lines",
+  "RECENT_LINES": "Recent",
+  "ALL_LINES": "All lines",
+  "SEARCH_BUS_LINE": "Search bus lines",
+  "FREQUENCY": "Frequency",
+  "SCHEDULES": "Schedules",
+  "STOPS": "Stops",
+  "BUS_POSITION": "Bus position",
+  "MAP": "Map",
+  "SEARCH": "Search",
+  "FAVORITES": "Favorites",
+  "NAVIGATION": "Navigation",
+  "ALT_LINES": "Alternative lines"
+}

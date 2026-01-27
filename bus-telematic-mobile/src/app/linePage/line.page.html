@@ -27,20 +27,20 @@
     <div class=" container form-floating mb-3" *ngIf="altLines.length > 1">
       <button id="floatingButton" class="custom-dropdown btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2"
         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" (click)="onSelectAltLine($event)">
-        {{getSelectedRAltLineDescr()}}
+        {{getSelectedAltLineDescr()}}
       </button>
-      <label class="floatingLabel" for="floatingButton">Εναλλακτικές Γραμμές</label>
+      <label class="floatingLabel" for="floatingButton">{{"ALT_LINES" | translate}}</label>
     </div>
     <div style="margin-top: 10px; height: 100%;">
         <ion-segment #segm mode="ios" color="primary" value="first" (ionChange)="onSegmentChange($event)">
             <ion-segment-button value="first" content-id="first">
-                <ion-label>Δρομολόγια</ion-label>
+                <ion-label>{{"FREQUENCY" | translate}}</ion-label>
             </ion-segment-button>
             <ion-segment-button value="second" content-id="second">
-                <ion-label>Στάσεις</ion-label>
+                <ion-label>{{"STOPS" | translate}}</ion-label>
             </ion-segment-button>
             <ion-segment-button value="third" content-id="third">
-              <ion-label>Θέση Λεωφορείου</ion-label>
+              <ion-label>{{"BUS_POSITION" | translate}}</ion-label>
           </ion-segment-button>
         </ion-segment>
         <ion-segment-view style="height: 90%;">
@@ -50,7 +50,7 @@
                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" (click)="onSelectSchedule($event)">
                       {{getSelectedSchedDescr()}}
                   </button>
-                  <label class="floatingLabel" for="floatingButton">Πρόγραμμα</label>
+                  <label class="floatingLabel" for="floatingButton">{{"SCHEDULES" | translate}}</label>
                 </div>
                 <div *ngIf="segm.value==='first'" style="height: 80%; display: flex;">
                     <div class="full-list" *ngIf="showList(1)" [ngClass]="showList(1) && showList(0) ? 'mid-list' : ''">
@@ -58,7 +58,7 @@
                             <h5 class="list-title">Πήγαινε</h5>
                         </div>
                         <ion-list style="height: 100%; overflow-y: auto;">
-                            <ion-item *ngFor="let t of filterAboutDirection(1);" [ngClass]="t.itsTime ? 'itsTime' : ''">
+                            <ion-item *ngFor="let t of filterAboutDirection(1);">
                                 <ion-label class="time-label">{{t.start_time}}</ion-label>
                             </ion-item>
                         </ion-list>
@@ -68,7 +68,7 @@
                             <h5 class="list-title">Επιστροφή</h5>
                         </div>
                         <ion-list style="height: 100%; overflow-y: auto;">
-                            <ion-item *ngFor="let t of filterAboutDirection(0);" [ngClass]="t.itsTime ? 'itsTime' : ''">
+                            <ion-item *ngFor="let t of filterAboutDirection(0);">
                                 <ion-label class="time-label">{{t.start_time}}</ion-label>
                             </ion-item>
                         </ion-list>
@@ -85,9 +85,9 @@
                 </div>
                 <div style="height: 85%;" *ngIf="segm.value==='second'">
                     <ion-list style="height: 100%; overflow-y: auto;">
-                        <ion-item *ngFor="let stp of getSelectedRoute()?.stops;" (click)="onOpenStop($event, stp.stop_code)">
+                        <!-- <ion-item *ngFor="let stp of getSelectedRoute()?.stops;" (click)="onOpenStop($event, stp.stop_code)">
                             {{stp.stop_code }} - {{stp.stop_descr}}
-                        </ion-item>
+                        </ion-item> -->
                     </ion-list>
                 </div>
             </ion-segment-content>

@@ -60,28 +60,29 @@ type StopDto03 struct {
 	Senu       int16   `json:"stop_senu"`
 }
 
-type StopOasa struct {
-	Stop_code       int32   `json:"StopCode" oasa:"StopCode"`
-	Stop_id         string  `json:"stopId" oasa:"StopID"`
-	Stop_descr      string  `json:"stopDescr" oasa:"StopDescr"`
-	Stop_descr_eng  string  `json:"stopDescrEng" oasa:"StopDescrEng"`
-	Stop_street     string  `json:"stopStreet" oasa:"StopStreet"`
-	Stop_street_eng string  `json:"stopStreetEng" oasa:"StopStreetEng"`
-	Stop_heading    int32   `json:"stopHeading" oasa:"StopHeading"`
-	Stop_lat        float64 `json:"stopLat" oasa:"StopLat"`
-	Stop_lng        float64 `json:"stopLng" oasa:"StopLng"`
-	Senu            int16   `json:"stopOrder" oasa:"RouteStopOrder"`
-	Stop_type       int8    `json:"stopType" oasa:"StopType"`
-	Stop_amea       int8    `json:"stopAmea" oasa:"StopAmea"`
-}
+// type StopOasa struct {
+// 	Stop_code       int32   `json:"StopCode" oasa:"StopCode"`
+// 	Stop_id         string  `json:"stopId" oasa:"StopID"`
+// 	Stop_descr      string  `json:"stopDescr" oasa:"StopDescr"`
+// 	Stop_descr_eng  string  `json:"stopDescrEng" oasa:"StopDescrEng"`
+// 	Stop_street     string  `json:"stopStreet" oasa:"StopStreet"`
+// 	Stop_street_eng string  `json:"stopStreetEng" oasa:"StopStreetEng"`
+// 	Stop_heading    int32   `json:"stopHeading" oasa:"StopHeading"`
+// 	Stop_lat        float64 `json:"stopLat" oasa:"StopLat"`
+// 	Stop_lng        float64 `json:"stopLng" oasa:"StopLng"`
+// 	Senu            int16   `json:"stopOrder" oasa:"RouteStopOrder"`
+// 	Stop_type       int8    `json:"stopType" oasa:"StopType"`
+// 	Stop_amea       int8    `json:"stopAmea" oasa:"StopAmea"`
+// }
 
 type StopDto struct {
-	Stop_code   int32   `json:"stop_code"`
-	Stop_descr  string  `json:"stop_descr"`
-	Stop_street string  `json:"stop_street"`
-	Stop_lat    float64 `json:"stop_lat"`
-	Stop_lng    float64 `json:"stop_lng"`
-	Distance    float64 `json:"distance"`
+	Stop_code      int32   `json:"stop_code"`
+	Stop_descr     string  `json:"stop_descr"`
+	Stop_descr_eng string  `json:"stop_descr_eng"`
+	Stop_street    string  `json:"stop_street"`
+	Stop_lat       float64 `json:"stop_lat"`
+	Stop_lng       float64 `json:"stop_lng"`
+	Distance       float64 `json:"distance"`
 }
 
 // Αυτό μπορεί να το αλλάξω.

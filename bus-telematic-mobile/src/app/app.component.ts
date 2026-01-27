@@ -7,6 +7,14 @@ import { NavigationService } from './service/navigation.service';
 import { Geolocation } from '@capacitor/geolocation';
 import { AppService } from './service/application.service';
 import { StatusBar } from "@capacitor/status-bar"
+import { TranslateService } from '@ngx-translate/core';
+
+
+interface Language {
+  code: string;
+  name: string;
+  flag: string; // path to flag image
+}
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
@@ -19,13 +27,20 @@ export class AppComponent implements OnInit {
   @ViewChild("Sidenav") sideNav!: ElementRef;
   @ViewChild("wrapperMenu") wrapper!: ElementRef;
   private sideNavOpen: boolean = false;
+
+  languages: Language[] = [
+    { code: 'en', name: 'English', flag: 'assets/images/united-states.png' },
+    { code: 'el', name: 'Ελληνικά', flag: 'assets/images/greek.png' }
+  ];
+
   constructor(
     private platform: Platform,
     private navCtr: NavController,
     private notificationSrv: PushNotificationsService,
     private storage: StorageService,
     private _navSrv: NavigationService,
-    private appSrv: AppService
+    public appSrv: AppService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -43,7 +58,13 @@ export class AppComponent implements OnInit {
           this._appVersion = val.version;
         }
       );
+      this.translate.addLangs(['en', 'el']);
+    // Default language
+      this.translate.setDefaultLang('el');
       await this.storage.initStorage();
+      this.storage.getValue('language').then((lang => {
+        this.appSrv.useLanguage(lang);
+      }));
       this.navCtr.navigateRoot("tabs");
       // Request permissions for Location and Notifications
       await this.requestLocationPermissions();
@@ -52,12 +73,21 @@ export class AppComponent implements OnInit {
 
         await this.notificationSrv.registerPushNotificationForUser();
       }
-
-
-
-
     });
 
+  }
+
+  onLanguageChange(ev: any) {
+    console.log("Ion select event ", ev);
+    this.appSrv.useLanguage(ev.detail.value);
+    this.toogleNav();
+  }
+
+  getFlagSrc() {
+    if(this.appSrv.language === 'el') {
+      return "assets/images/greek.png";
+    }
+    return "assets/images/united-states.png"
   }
 
   getTitle(activeRoute: ActivatedRoute) {

@@ -5,6 +5,10 @@ import 'mapbox-gl-leaflet';
 import { Geolocation } from '@capacitor/geolocation';
 import { NavigationService } from '../service/navigation.service';
 import { MapService } from '../service/map.service';
+import { BackendService02 } from '../service/backend02.service';
+import { CloseStops } from '../models/stop.interface';
+import { AppService } from '../service/application.service';
+import { Subscription } from 'rxjs';
 
 export interface PointCoordinates {
   latitude: number;
@@ -22,24 +26,24 @@ export class Tab1Page implements OnInit {
   private tracker: L.Marker | undefined;
   @ViewChild('map')
   private mapContainer: ElementRef<HTMLElement> | undefined;
+  private closeStops!: CloseStops[];
+
+  private changeLanguage$!: Subscription;
 
   constructor(
     private navSrv: NavigationService,
     private mapSrv: MapService,
-    private backSrv: BackendService
+    private backSrv: BackendService,
+    private backSrv02: BackendService02,
+    private appSrv: AppService
   ) {}
 
   ngOnInit(): void {
     console.log("Tab1 page OnInit run...");
-    // Geolocation.watchPosition({
-    //   enableHighAccuracy: true,
-    // }, (position, err) => {
-    //   this.mapSrv.trackUserLocation(position?.coords.latitude, position?.coords.longitude);
-    // });
   }
 
   ionViewDidEnter() {
-    this.navSrv.activeTitle.next("");
+    this.navSrv.activeTitle.next(undefined);
     this.mapSrv.initMap02();
     // Ensure the map is properly resized after a short delay
     setTimeout(() => {
@@ -48,6 +52,19 @@ export class Tab1Page implements OnInit {
       }
     }, 100); // Delay allows Angular rendering to complete
     this.getUserLocation();
+    this.changeLanguage$ = this.appSrv.onLanguageChange.subscribe(
+      (lang) => {
+        if(this.closeStops) {
+          this.mapSrv.addClosesest(this.closeStops);
+        }
+      }
+    );
+  }
+
+  ionViewWillLeave() {
+    if(this.changeLanguage$) {
+      this.changeLanguage$.unsubscribe();
+    }
   }
 
   private async geoLocationRequestPermission() {
@@ -72,23 +89,21 @@ export class Tab1Page implements OnInit {
       timeout: 5000
     });
     console.log('Current position:', location);
-    //this.map.setView([coordinates.coords.latitude, coordinates.coords.longitude], 18);
     this.mapSrv.trackUserMap2(location.coords.latitude, location.coords.longitude);
     this.getClosestsStops(location.coords.latitude, location.coords.longitude);
-    // } catch (error) {
-    //   console.error('Error getting location:', error);
-    //   alert('Unable to retrieve your location');
-    // }
   }
 
   getClosestsStops(lat: number, lng: number) {
-    this.backSrv.getCloseStops(lat, lng).subscribe(
+    this.backSrv02.getCloseStops(lat, lng).subscribe(
       (stops) => {
-        debugger;
-        this.mapSrv.addClosesest(stops);
+        this.closeStops = stops;
+
       },
       (error) => {
         console.log(error);
+      },
+      () => {
+        this.mapSrv.addClosesest(this.closeStops);
       }
     );
   }

@@ -2,7 +2,6 @@ package repository
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/cs161079/monorepo/common/db"
 	"github.com/cs161079/monorepo/common/models"
@@ -19,12 +18,46 @@ type ScheduleRepository interface {
 	InsertScheduleMasterArray(input []models.ScheduleMaster) ([]models.ScheduleMaster, error)
 	DeleteScheduleMaster() error
 
-	SelectByLineSdcCodeWithTimes(int32, int32) (*models.ScheduleMaster, error)
-	SelectCurrentSchedule(int32) (*models.ScheduleMaster, error)
-
-	ScheduleMasterList() ([]models.ScheduleMaster, error)
 	ScheduleMasterDistinct(int32) ([]models.ScheduleTimeDto, error)
 	ScheduleTimeListByLineCode(int32, int) ([]models.ScheduleTimeDto, error)
+	ScheduleMasterList() ([]models.ScheduleMaster, error)
+	/* =============================================================
+		Μετά τις αλλάγες πριν την παράδοση
+	   =============================================================
+	*/
+
+	/* =============================================================
+		SelectByLineSdcCodeWithTimes επιστρέφει το Master Schedule μαζί με τα αντίστοιχα
+		χρονικά σημεία (Schedule Times) για τον συγκεκριμένο κωδικό γραμμής και κωδικό προγράμματος (SDC).
+
+		@param line_code
+		@param sdc_code
+
+		@return *models.ScheduleMaster
+		@return error
+	   ============================================================= */
+	SelectByLineSdcCodeWithTimes(int32, int32) (*models.ScheduleMaster, error)
+	/* =============================================================
+		SelectCurrentSchedule επιστρέφει το δρομολόγιο που ισχύει για τη συγκεκριμένη ημέρ και μήνα.
+		Η μέθοδος βασίζεται σε δύο πεδία πίνακα:
+			- Ένα πεδίο 12 χαρακτήρων που αντιστοιχεί στους μήνες του έτους (Ιανουάριος–Δεκέμβριος)
+			- Ένα πεδίο 7 χαρακτήρων που αντιστοιχεί στις ημέρες της εβδομάδας (Δευτέρα–Κυριακή)
+		Κάθε χαρακτήρας στα πεδία αυτά λειτουργεί ως ένδειξη ενεργοποίησης του δρομολογίου
+		για τον αντίστοιχο μήνα ή ημέρα. Με βάση τον μήνα και την ημέρα της ημερομηνίας
+		εισόδου, η μέθοδος ελέγχει τις αντίστοιχες θέσεις και καθορίζει αν το δρομολόγιο
+		είναι ενεργό και πρέπει να ακολουθηθεί.
+	   ============================================================= */
+	SelectCurrentSchedule(int32, int8, int8) (*models.ScheduleMaster, error)
+
+	/* =============================================================
+		SchedulesByLineCode Με αυτή τη διαδικασία ανακτούμε από τη βάση δεδομένων
+		τα Master Schedule για την γραμμή με κωδικό γραμμής.\n
+		Χωρίς τις λεπτομέρειες των χρονικών σημείων (Schedule Times).\n
+		@param lineCode: Κωδικός γραμμής
+		@return []models.ScheduleMaster
+		@return error
+	   ============================================================= */
+	ScheduleByLineCode(lineCode int32) ([]models.ScheduleDto, error)
 }
 
 type scheduleRepository struct {
@@ -100,10 +133,10 @@ func (r scheduleRepository) SelectByLineSdcCodeWithTimes(lineCode int32, sdcCode
 	return &result, nil
 }
 
-func (r scheduleRepository) SelectCurrentSchedule(lineCode int32) (*models.ScheduleMaster, error) {
+func (r scheduleRepository) SelectCurrentSchedule(lineCode int32, month int8, day int8) (*models.ScheduleMaster, error) {
 	var result models.ScheduleMaster
 	var hlpArr []models.ScheduleMaster
-	dbResults := r.DB.Preload("Schedule_Details", func(db *gorm.DB) *gorm.DB {
+	dbResults := r.DB.Preload("ScheduleTimes", func(db *gorm.DB) *gorm.DB {
 		return db.Where("ln_code = ?", lineCode).Order("sort")
 	}).Find(&hlpArr)
 
@@ -111,11 +144,8 @@ func (r scheduleRepository) SelectCurrentSchedule(lineCode int32) (*models.Sched
 		return nil, fmt.Errorf("Database Error. [%s]", dbResults.Error.Error())
 	}
 
-	currentMonth := int(time.Now().Month())
-	currentDay := time.Now().Weekday()
-
 	for _, rec := range hlpArr {
-		if len(rec.ScheduleTimes) != 0 && string(rec.SDCDays[currentDay]) == "1" && string(rec.SDCMonths[currentMonth-1]) == "1" {
+		if len(rec.ScheduleTimes) != 0 && string(rec.SDCDays[day]) == "1" && string(rec.SDCMonths[month-1]) == "1" {
 			result = rec
 			return &result, nil
 		}
@@ -130,6 +160,26 @@ func (r scheduleRepository) ScheduleMasterList() ([]models.ScheduleMaster, error
 		return nil, dbResult.Error
 	}
 	return dbData, nil
+}
+
+func (r scheduleRepository) ScheduleByLineCode(lineCode int32) ([]models.ScheduleDto, error) {
+	var results []models.ScheduleDto
+
+	subQuery := r.DB.
+		Table(db.SCHEDULETIMETABLE).
+		Select("DISTINCT sdc_cd").
+		Where("ln_code = ?", lineCode)
+
+	err := r.DB.
+		Table(db.SCHEDULEMASTERTABLE).
+		Select("sdc_descr_eng, sdc_descr, sdc_code").
+		Where("sdc_code IN (?)", subQuery).
+		Scan(&results).Error
+
+	if err != nil {
+		return nil, err
+	}
+	return results, nil
 }
 
 func (r scheduleRepository) ScheduleMasterDistinct(lineCode int32) ([]models.ScheduleTimeDto, error) {

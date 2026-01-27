@@ -39,6 +39,16 @@ type ScheduleDto struct {
 	Sdc_Code      int32  `json:"sdc_code"`
 }
 
+type ScheduleMasterDto struct {
+	SDCCode       int32          `json:"sdc_code" gorm:"column:sdc_code;uniqueIndex"`
+	ScheduleTimes []ScheduleTime `json:"times" gorm:"foreignKey:SDCCd;references:SDCCode"`
+}
+
+type ScheduleCbsDto struct {
+	Schedules      []ScheduleDto     `json:"schedules"`
+	ActiveSchedule ScheduleMasterDto `json:"active_schedule"`
+}
+
 type ScheduleMasterM struct {
 	SDCDescr    string          `json:"sdc_descr"`
 	SDCDescrEng string          `json:"sdc_descr_eng"`

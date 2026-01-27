@@ -11,6 +11,7 @@ import { BusLocation } from '../models/oasa.interface';
 import { TripPart, TripPlan } from '../models/trip_plan.interface';
 import { decode } from '@mapbox/polyline';
 import { Geolocation } from '@capacitor/geolocation';
+import { AppService } from './application.service';
 
 interface RoutePoints {
   longtitude: number;
@@ -52,6 +53,7 @@ export class MapService {
   constructor(
     private backendSrv: BackendService,
     private modalCtrl: ModalController,
+    private appSrv: AppService
     // private renderer: Renderer2
   ) {
     this._busStationIcon = L.icon({
@@ -301,7 +303,8 @@ export class MapService {
     }).addTo(group);
 
     // Στο Event popupopen assign event on popUp Component.
-    const popupContent = this.getPopupContent(stop.stop_code, stop.stop_descr);
+    const popupContent = this.getPopupContent(stop.stop_code,
+      this.appSrv.language === 'el' ? stop.stop_descr : stop.stop_descr_eng);
     leafletMarker.bindPopup(popupContent, customOptions).on("popupopen", (popEvent) => {
       var popUp = popEvent.target.getPopup()
       popUp.getElement()

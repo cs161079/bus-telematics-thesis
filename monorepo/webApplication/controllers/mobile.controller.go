@@ -53,9 +53,11 @@ func (c *MobileControllerImplementation) AddRouters(eng *gin.RouterGroup) {
 
 	lineGroup := eng.Group("/lines")
 	lineGroup.GET("/list", c.getLineList)
-	lineGroup.GET("/details", c.getLineInfo)
 	lineGroup.GET("/search", c.searchLine)
+	lineGroup.GET("/details", c.getLineInfo)
+	lineGroup.GET("/schedules", c.getScheddules)
 	lineGroup.GET("/alt/list", c.alternativeLines)
+
 	lineGroup.GET("/cbs", c.lineCombos)
 
 	routeGroup := eng.Group("/routes")
@@ -99,12 +101,7 @@ func (c *MobileControllerImplementation) getSchedule(ctx *gin.Context) {
 		return
 	}
 
-	schedule, err := c.schedSvc.SelectByLineSdcCodeWithTimes(*line_code, *sdc_code)
-	if err != nil {
-		// ctx.AbortWithStatusJSON(http.StatusOK, map[string]any{"error": err.Error(), "code": "err-001"})
-		models.HttpResponse(ctx, err)
-		return
-	}
+	schedule, err := c.schedSvc.SelectScheduleTimes(*sdc_code, *line_code)
 
 	ctx.JSON(http.StatusOK, map[string]any{"duration": time.Since(start).Seconds(), "data": schedule})
 }
@@ -175,6 +172,29 @@ func (c *MobileControllerImplementation) searchLine(ctx *gin.Context) {
 
 }
 
+func (c *MobileControllerImplementation) getScheddules(ctx *gin.Context) {
+	start := time.Now()
+	sdcCode, err := utils.StrToInt32(ctx.Query("sdc_code"))
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, map[string]any{"error": "Schedule code is not a valid number."})
+		return
+	}
+
+	lineCode, err := utils.StrToInt32(ctx.Query("line_code"))
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, map[string]any{"error": "Schedule code is not a valid number."})
+		return
+	}
+
+	schedule, err := c.schedSvc.SelectByLineSdcCodeWithTimes(*lineCode, *sdcCode)
+	if err != nil {
+		//ctx.AbortWithStatusJSON(http.StatusOK, map[string]any{"error": err.Error(), "code": "err-001"})
+		models.HttpResponse(ctx, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, map[string]any{"duration": time.Since(start).Seconds(), "data": *schedule})
+}
+
 func (c *MobileControllerImplementation) getLineInfo(ctx *gin.Context) {
 	start := time.Now()
 	line_code, err := utils.StrToInt32(ctx.Query("code"))
@@ -190,26 +210,26 @@ func (c *MobileControllerImplementation) getLineInfo(ctx *gin.Context) {
 		return
 	}
 
-	var route *models.RouteDto
+	// var route *models.RouteDto
 	route, err = c.routeSvc.SelectFirstRouteByLinecodeWithStops(*line_code)
 
-	if err != nil {
-		// ctx.AbortWithStatusJSON(http.StatusOK, map[string]any{"error": err.Error(), "code": "err-001"})
-		models.HttpResponse(ctx, err)
-		return
-	}
+	// if err != nil {
+	// 	// ctx.AbortWithStatusJSON(http.StatusOK, map[string]any{"error": err.Error(), "code": "err-001"})
+	// 	models.HttpResponse(ctx, err)
+	// 	return
+	// }
 
-	line.Route = *route
+	// line.Route = *route
 
-	var schedule *models.ScheduleMaster
+	// var schedule *models.ScheduleMaster
 
-	schedule, err = c.schedSvc.SelectByLineSdcCodeWithTimes(line.Line_Code, line.Sdc_Cd)
-	if err != nil {
-		//ctx.AbortWithStatusJSON(http.StatusOK, map[string]any{"error": err.Error(), "code": "err-001"})
-		models.HttpResponse(ctx, err)
-		return
-	}
-	line.Schedule = *schedule
+	// schedule, err = c.schedSvc.SelectByLineSdcCodeWithTimes(line.Line_Code, line.Sdc_Cd)
+	// if err != nil {
+	// 	//ctx.AbortWithStatusJSON(http.StatusOK, map[string]any{"error": err.Error(), "code": "err-001"})
+	// 	models.HttpResponse(ctx, err)
+	// 	return
+	// }
+	// line.Schedule = *schedule
 
 	ctx.JSON(http.StatusOK, map[string]any{"duration": time.Since(start).Seconds(), "data": line})
 }
@@ -221,7 +241,7 @@ func (c *MobileControllerImplementation) getLineList(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, map[string]any{
-		"lines": data,
+		"data": data,
 	})
 }
 
@@ -356,7 +376,7 @@ func (c *MobileControllerImplementation) closeStops(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, map[string]any{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, map[string]any{"stops": closeStops, "duration": time.Since(start).Seconds()})
+	ctx.JSON(http.StatusOK, map[string]any{"data": closeStops, "duration": time.Since(start).Seconds()})
 }
 
 func (c *MobileControllerImplementation) getStopInfo(ctx *gin.Context) {
@@ -383,13 +403,12 @@ func (t *MobileControllerImplementation) alternativeLines(ctx *gin.Context) {
 		return
 	}
 
-	comboRec, err := t.lineSvc.AlternativeLinesList(line_id)
+	altLines, err := t.lineSvc.AlternativeLinesList(line_id)
 	if err != nil {
 		models.HttpResponse(ctx, err)
 		return
 	}
-	var response map[string]interface{} = map[string]interface{}{"altLines": comboRec}
-	ctx.JSON(http.StatusOK, map[string]any{"duration": time.Since(start).Seconds(), "data": response})
+	ctx.JSON(http.StatusOK, map[string]any{"duration": time.Since(start).Seconds(), "data": altLines})
 }
 
 func (t *MobileControllerImplementation) lineCombos(ctx *gin.Context) {

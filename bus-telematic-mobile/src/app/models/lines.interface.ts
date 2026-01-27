@@ -1,8 +1,9 @@
 export interface Line {
-    line_code: number;
-    line_id: string;
-    line_descr: string;
-    line_type: LINE_TYPE;
+  line_code: number;
+  line_id: string;
+  line_descr: string;
+  line_descr_eng: string;
+  line_type: LINE_TYPE;
 }
 
 export enum LINE_TYPE {
@@ -10,20 +11,20 @@ export enum LINE_TYPE {
   TROLLEY = 1
 }
 
-export interface LineDto {
-    ml_code: number;
-   sdc_code: number;
-   line_code: number;
-   line_id: string;
-   line_descr: string;
-   line_type: LINE_TYPE;
-   routes: RouteDto[];
-   schedule: ScheduleMaster
+export interface LineDetails {
+  ml_code: number;
+  sdc_code: number;
+  line_code: number;
+  line_id: string;
+  line_descr: string;
+  line_descr_eng: string;
+  mld_master: number;
+  line_type: number;
 }
 
 export interface ScheduleMaster {
     sdc_code: number;
-    sdc_descr: string;
+    // sdc_descr: string;
     times: ScheduleTime[];
 }
 

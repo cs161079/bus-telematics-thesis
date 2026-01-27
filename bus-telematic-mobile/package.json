@@ -40,6 +40,8 @@
     "@ionic/storage": "^4.0.0",
     "@ionic/storage-angular": "^4.0.0",
     "@mapbox/polyline": "^1.2.1",
+    "@ngx-translate/core": "^17.0.0",
+    "@ngx-translate/http-loader": "^17.0.0",
     "@types/mapbox-gl-leaflet": "^0.0.4",
     "bootstrap": "^5.3.3",
     "bus-telematic-mobile": "file:",

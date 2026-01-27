@@ -145,6 +145,7 @@ export class StopPage implements OnInit, OnDestroy {
     return {
       line_code: inRec.line_code,
       line_descr: inRec.route_descr,
+      line_descr_eng: "",
       line_id: inRec.line_id,
       line_type: inRec.line_type
     };

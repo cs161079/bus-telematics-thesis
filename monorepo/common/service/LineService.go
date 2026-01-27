@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"strconv"
 
 	"github.com/cs161079/monorepo/common/mapper"
 	"github.com/cs161079/monorepo/common/models"
@@ -12,17 +11,34 @@ import (
 )
 
 type LineService interface {
+	/* ========================================================
+	Μέθοδοι που χρησιμοποιούνται στο cronjob
+	*/
 	WithTrx(*gorm.DB) lineService
 	InsertArray([]models.Line) ([]models.Line, error)
 	InsertChunkArray(chunkSize int, allData []models.Line) error
 	DeleteAll() error
+	// =========================================================
+	/* =========================================================
+	GetLineList Ανακτά γραμμές λεοφωρείων από την βάση δεδομένων
+
+	@return []models.LineDto01
+	@return error
+	*/
 	GetLineList() ([]models.LineDto01, error)
+	/* =========================================================
+		AlternativeLinesList Επιστρέφει εναλλακτικές γραμμές λεωφορείων
+
+		@param line_id string
+		@return []models.LineDto01
+		@return error
+	  ==========================================================*/
+	AlternativeLinesList(string) ([]models.LineDto01, error)
 	SelectByLineCode(lineCode int32) (*models.LineDto, error)
 
 	InsertLine(line *models.Line) (*models.Line, error)
 	PostLine(line *models.Line) (*models.Line, error)
 	PostLineArray(context.Context, []models.Line) ([]models.Line, error)
-	AlternativeLinesList(string) ([]models.ComboRec, error)
 
 	SearchLine(string) ([]models.Line, error)
 	GetMapper() mapper.LineMapper
@@ -135,18 +151,19 @@ func (s lineService) InsertChunkArray(chunkSize int, allData []models.Line) erro
 	return nil
 }
 
-func (s lineService) AlternativeLinesList(line_id string) ([]models.ComboRec, error) {
-	var altLineList, err = s.repo.SelectAltLines(line_id)
-	if err != nil {
-		return nil, err
-	}
-	var result []models.ComboRec = make([]models.ComboRec, 0)
-	if len(altLineList) > 0 {
-		for _, rec := range altLineList {
-			result = append(result, models.ComboRec{Code: int32(rec.LineCode), Descr: strconv.Itoa(int(rec.LineCode)) + "-" + rec.LineDescr})
-		}
-	}
-	return result, nil
+func (s lineService) AlternativeLinesList(line_id string) ([]models.LineDto01, error) {
+	// var altLineList, err =
+	return s.repo.SelectAltLines(line_id)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// var result []models.ComboRec = make([]models.ComboRec, 0)
+	// if len(altLineList) > 0 {
+	// 	for _, rec := range altLineList {
+	// 		result = append(result, models.ComboRec{Code: int32(rec.LineCode), Descr: strconv.Itoa(int(rec.LineCode)) + "-" + rec.LineDescr})
+	// 	}
+	// }
+	// return result, nil
 }
 
 func (t lineService) SearchLine(text string) ([]models.Line, error) {

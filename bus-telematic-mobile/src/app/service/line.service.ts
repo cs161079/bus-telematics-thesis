@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Line } from "../models/lines.interface";
+import { Line, LineDetails } from "../models/lines.interface";
 import { StorageService } from "./storage.service";
 import { BehaviorSubject, from, Observable, of } from "rxjs";
 import { LinePage } from "../linePage/line.page";
