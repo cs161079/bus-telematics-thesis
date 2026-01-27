@@ -211,7 +211,7 @@ func (c *MobileControllerImplementation) getLineInfo(ctx *gin.Context) {
 	}
 
 	// var route *models.RouteDto
-	route, err = c.routeSvc.SelectFirstRouteByLinecodeWithStops(*line_code)
+	// route, err = c.routeSvc.SelectFirstRouteByLinecodeWithStops(*line_code)
 
 	// if err != nil {
 	// 	// ctx.AbortWithStatusJSON(http.StatusOK, map[string]any{"error": err.Error(), "code": "err-001"})
