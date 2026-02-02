@@ -12,7 +12,7 @@ spec:
           containers:
           - name: oasa-job-container
             # image: oulisnikos/oasa-cron:0.0.2-prod
-            image: cs161079uniwa/oasa-job:0.0.1
+            image: cs161079uniwa/oasa-job:0.0.3
             envFrom:
             - configMapRef:
                 name: oasa-cronjob-enviroment
@@ -25,6 +25,11 @@ spec:
             #   subPath: build-config.json
             - name: data
               mountPath: /data
+            resources:
+              requests:
+                memory: 7Gi
+              limits:
+                memory: 8Gi
           volumes:
           - name: job-logs
             persistentVolumeClaim:
