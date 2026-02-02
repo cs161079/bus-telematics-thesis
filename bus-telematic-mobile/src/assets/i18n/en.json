@@ -8,10 +8,19 @@
   "FREQUENCY": "Frequency",
   "SCHEDULES": "Schedules",
   "STOPS": "Stops",
+  "LINES": "Lines",
   "BUS_POSITION": "Bus position",
   "MAP": "Map",
   "SEARCH": "Search",
   "FAVORITES": "Favorites",
   "NAVIGATION": "Navigation",
-  "ALT_LINES": "Alternative lines"
+  "ALT_LINES": "Alternative lines",
+  "SELECT_SCHEDULE": "Select schedule",
+  "ROUTES": "Routes",
+  "SELECT_ROUTE": "Select route",
+  "MY_LOCATION": "My location",
+  "DEPARTURE": "Departure",
+  "RETURN": "Return",
+  "FROM": "From",
+  "TO": "To"
 }

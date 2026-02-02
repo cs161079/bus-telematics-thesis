@@ -22,7 +22,9 @@ export interface PointCoordinates {
 })
 export class Tab1Page implements OnInit {
 
-  private map!: L.Map;
+  minRadius: number = 0;
+  maxRadius: number = 0;
+  // private map!: L.Map;
   private tracker: L.Marker | undefined;
   @ViewChild('map')
   private mapContainer: ElementRef<HTMLElement> | undefined;
@@ -44,14 +46,22 @@ export class Tab1Page implements OnInit {
 
   ionViewDidEnter() {
     this.navSrv.activeTitle.next(undefined);
-    this.mapSrv.initMap02();
-    // Ensure the map is properly resized after a short delay
     setTimeout(() => {
-      if(this.map) {
-        // this.map.invalidateSize();
-      }
-    }, 100); // Delay allows Angular rendering to complete
-    this.getUserLocation();
+      this.mapSrv.initMap02();
+      this.mapSrv.map2Element.on('zoomend', async() => {
+        const location = await this.getLocation();
+        this.getClosestsStops(location.coords.latitude, location.coords.longitude);
+      });
+      this.getUserLocation();
+    }, 200);
+
+    // Ensure the map is properly resized after a short delay
+    // setTimeout(() => {
+    //   if(this.map) {
+    //     // this.map.invalidateSize();
+    //   }
+    // }, 100); // Delay allows Angular rendering to complete
+
     this.changeLanguage$ = this.appSrv.onLanguageChange.subscribe(
       (lang) => {
         if(this.closeStops) {
@@ -67,37 +77,55 @@ export class Tab1Page implements OnInit {
     }
   }
 
-  private async geoLocationRequestPermission() {
-    return new Promise<boolean>(async (resolve, reject) => {
-      let permStatus = await Geolocation.checkPermissions();
-      if (permStatus.location === 'prompt') {
-        permStatus = await Geolocation.requestPermissions();
-      }
+  // private async geoLocationRequestPermission() {
+  //   return new Promise<boolean>(async (resolve, reject) => {
+  //     let permStatus = await Geolocation.checkPermissions();
+  //     if (permStatus.location === 'prompt') {
+  //       permStatus = await Geolocation.requestPermissions();
+  //     }
 
-      if(permStatus.location !== 'granted') {
-        console.error('User denied permissions!');
-        resolve(false);
-      }
-      resolve(true);
-    });
+  //     if(permStatus.location !== 'granted') {
+  //       console.error('User denied permissions!');
+  //       resolve(false);
+  //     }
+  //     resolve(true);
+  //   });
 
+  // }
+
+  async getLocation() {
+    return await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 15000,      // ⬅️ 15s (όχι 5s)
+        maximumAge: 30000
+      });
   }
 
   async getUserLocation(): Promise<void> {
     // try {
-    const location = await Geolocation.getCurrentPosition({
-      timeout: 5000
-    });
+    const location = await this.getLocation();
     console.log('Current position:', location);
     this.mapSrv.trackUserMap2(location.coords.latitude, location.coords.longitude);
     this.getClosestsStops(location.coords.latitude, location.coords.longitude);
   }
 
   getClosestsStops(lat: number, lng: number) {
-    this.backSrv02.getCloseStops(lat, lng).subscribe(
+    debugger;
+    const bounds = this.mapSrv.map2Element.getBounds();
+    const center = bounds.getCenter();
+    const north = bounds.getNorth();
+    const toRadiusKm =  Number((center.distanceTo([north, center.lng])/1000).toFixed(2));
+    if(toRadiusKm < this.maxRadius) {
+      return;
+    }
+    this.minRadius = this.maxRadius;
+    this.maxRadius = toRadiusKm;
+    if(toRadiusKm > 3.5) {
+      return;
+    }
+    this.backSrv02.getCloseStops(lat, lng, this.minRadius, this.maxRadius).subscribe(
       (stops) => {
         this.closeStops = stops;
-
       },
       (error) => {
         console.log(error);

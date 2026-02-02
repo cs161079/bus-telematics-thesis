@@ -1,7 +1,7 @@
 <ion-content [fullscreen]="true">
   <div class="container-start">
     <ion-item class="searchInput" style="min-width: 300px; width: 300px; margin: 5px 0px;">
-      <ion-label>Από:</ion-label>
+      <ion-label>{{"FROM" | translate}}:</ion-label>
       <ionic-selectable
         [(ngModel)]="navigationPoint1"
         style="max-width: 100%;"
@@ -24,8 +24,18 @@
       </ng-template>
     </ionic-selectable>
     </ion-item>
+    <ion-fab style="left: 10px;">
+      <ion-fab-button [disabled]="!(navigationPoint1 && navigationPoint2)" color="danger" style="height: 40px; width:40px;" (click)="onClearPoints()">
+        <ion-icon name="trash-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+    <ion-fab style="right: 10px;">
+      <ion-fab-button [disabled]="!(navigationPoint1 && navigationPoint2)" style="height: 40px; width:40px;" (click)="onNavigateClick()">
+        <ion-icon name="navigate-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
     <ion-item class="searchInput" style="min-width: 300px; width: 300px; margin: 5px 0px; " (click)="onOpenSearch()">
-      <ion-label>Πρός:</ion-label>
+      <ion-label>{{"TO" | translate}}:</ion-label>
       <ionic-selectable
         style="max-width: 100%;"
         [(ngModel)]="navigationPoint2"
@@ -63,7 +73,7 @@
   <ng-template>
     <ion-header style="box-shadow: none; -webkit-box-shadow: none;">
       <ion-toolbar>
-        <ion-title style="font-size: x-large;">Public Transport</ion-title>
+        <ion-title style="font-size: x-large;">Transport Options</ion-title>
         <ion-buttons slot="end">
           <ion-button (click)="onModalClose()" style="background-color: #00000017; border-radius: 20px;" shape="round">
             <ion-icon style="font-size: 17px;" size="" name="close-outline"></ion-icon>
@@ -74,13 +84,6 @@
     <ion-content>
       <ion-list>
       <app-trip [selected]="selectedTrip === i" [trip]="plan" *ngFor="let plan of tripPlans; let i = index;" (click)="onTripClick(i)">
-        <!-- <ion-avatar>
-          <img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
-        </ion-avatar>
-        <ion-label>
-          Choice {{i}}
-        </ion-label> -->
-        <!-- <app-trip [trip]="plan"></app-trip> -->
       </app-trip>
     </ion-list>
     </ion-content>

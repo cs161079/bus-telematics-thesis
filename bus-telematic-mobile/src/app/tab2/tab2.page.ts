@@ -48,8 +48,7 @@ export class Tab2Page implements OnInit {
       async (currentLang) => {
         debugger;
         if(currentLang) {
-          const title = await firstValueFrom(this.translate.get("LINE_SEARCH"));
-          this.navSrv.activeTitle.next(title);
+          this.navSrv.activeTitle.next(this.translate.instant("LINE_SEARCH"));
           this.getLineData();
         }
       }

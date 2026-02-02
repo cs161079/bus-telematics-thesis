@@ -1,3 +1,4 @@
+import { firstValueFrom } from 'rxjs';
 import { antPath } from 'leaflet-ant-path';
 import { Injectable } from "@angular/core";
 import { BackendService } from './backend.service';
@@ -12,6 +13,8 @@ import { TripPart, TripPlan } from '../models/trip_plan.interface';
 import { decode } from '@mapbox/polyline';
 import { Geolocation } from '@capacitor/geolocation';
 import { AppService } from './application.service';
+import { BackendService02 } from './backend02.service';
+import { LatLngBounds } from 'leaflet';
 
 interface RoutePoints {
   longtitude: number;
@@ -52,6 +55,7 @@ export class MapService {
   private _markersLayer!: L.LayerGroup;
   constructor(
     private backendSrv: BackendService,
+    private backendSrv02: BackendService02,
     private modalCtrl: ModalController,
     private appSrv: AppService
     // private renderer: Renderer2
@@ -114,21 +118,16 @@ export class MapService {
     this.trackUserLocation(this._map2Element, lat, lng);
   }
 
-  private trackUserLocation(map: L.Map, lat: any, lng: any) {
-    debugger;
-    // // this._firstMapGroup?.clearLayers();
-    // this._firstMapGroup?.removeLayer(this._positionMarker);
-    // // Add the custom blue dot marker at the user's location
+  private trackUserLocation(map: L.Map, lat: any, lng: any, setView: boolean = true) {
     if(this._positionMarker) {
       map.removeLayer(this._positionMarker);
     }
     this._positionMarker = L.marker([lat, lng], { icon: this._myLocationIcon }).addTo(map)
       .bindPopup('You are here!');
 
-    map.setView([lat, lng], DEFAULT_ZOOM_LOCATION);
-
-    // // Optionally, adjust the map's view to the user's location
-    // // this.map.setView([lat, lng], 13);
+    if(setView) {
+      map.setView([lat, lng], DEFAULT_ZOOM_LOCATION);
+    }
   }
 
   addRouteGroupLayer() {
@@ -138,6 +137,7 @@ export class MapService {
 
   initMap03() {
     if(this._map3Element) {
+      this._map3Element.invalidateSize(true);
       return;
     }
     this._map3Element = new L.Map('navigate-map', {
@@ -153,10 +153,16 @@ export class MapService {
     });
   }
 
+  get map2Element() {
+    return this._map2Element;
+  }
+
   public initMap02() {
-    // if(this._map2Element) {
-    //   return;
-    // }
+    if(this._map2Element) {
+      console.log("Tab1 map is already initilized!");
+      this._map2Element.invalidateSize(true);
+      return;
+    }
     this._map2Element = new L.Map('tab1-map', {
       // center: [initialState.lng, initialState.lat],
       // zoom: initialState.zoom,
@@ -218,17 +224,17 @@ export class MapService {
   }
 
   async addBusPosition(busLocations: BusLocation[]) {
-    this._busPositionGroup?.clearLayers();
     try {
       const location = await Geolocation.getCurrentPosition({
         timeout: 5000
       });
       console.log("User location ", location);
-      this.trackUserLocation(this._map1Element, location.coords.latitude, location.coords.longitude);
+      this.trackUserLocation(this._map1Element, location.coords.latitude, location.coords.longitude, false);
     } catch(error) {
       console.log("Error on get user location.", error);
     }
     if(busLocations) {
+      this._busPositionGroup?.clearLayers();
       busLocations.forEach(
         (busLocation) => {
           const fillPercentage = this.generateRandom()/100;
@@ -321,7 +327,7 @@ export class MapService {
       zoom: 14,
     };
     this._routeGroups?.clearLayers();
-    const routeCoors = await this.backendSrv.getRouteDetails(route_code).pipe(
+    const routeCoors = await firstValueFrom(this.backendSrv02.getRouteDetails(route_code).pipe(
       map(
         (data) => {
           const coors: number[][] = [];
@@ -338,12 +344,9 @@ export class MapService {
           return coors;
         }
       )
-    ).toPromise();
+    ));
     if(routeCoors) {
-      const routeCenter = this.getCenteOfRoute(routeCoors);
-      if(routeCenter) {
-        this._map1Element.setView([routeCenter[0], routeCenter[1]] , initliaMapOpts.zoom);
-      }
+      this.centeOfRoute(routeCoors);
     }
 
     return antPath([routeCoors], {color: '#0000ff', pulseColor: "#0000ff", paused: true, weight: 5, opacity: 1}).addTo(this._routeGroups);
@@ -355,12 +358,16 @@ export class MapService {
     return result;
   }
 
-  getCenteOfRoute(arr: number[][]): number[] | undefined{
-    if (arr.length === 0) return undefined; // Handle empty array
+  centeOfRoute(arr: number[][]): void {
 
-    const midIndex = Math.floor(arr.length / 2);
+    if (arr.length === 0) return;
 
-    return arr[midIndex];
+    const allLatitudes = arr.map(coord => coord[0]);
+    const allLongitudes = arr.map(coord => coord[1]);
+    const min = [Math.min(...allLatitudes), Math.min(...allLongitudes)] as [number, number];
+    const max = [Math.max(...allLatitudes), Math.max(...allLongitudes)] as [number, number];
+
+    this._map1Element.fitBounds([min, max], { padding: [24, 24] });
   }
 
   addClosesest(stops: CloseStops[]) {
@@ -382,7 +389,7 @@ export class MapService {
     await modal.present();
   }
 
-  clearTrip() {
+  clearTrip(clearPoints: boolean = false) {
     if(this._walkLayer) {
       this._walkLayer.clearLayers();
     }
@@ -394,6 +401,16 @@ export class MapService {
     if(this._markersLayer) {
       this._markersLayer.clearLayers();
     }
+    if(clearPoints) {
+      this._pointGroups.clearLayers();
+    }
+
+  }
+
+  clearNavigationMap() {
+    this._walkLayer.clearLayers();
+    this._busLayer.clearLayers();
+    this._markersLayer.clearLayers();
     this._pointGroups.clearLayers();
   }
 

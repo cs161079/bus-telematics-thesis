@@ -3,6 +3,7 @@ import { LINE_TYPE } from "./lines.interface";
 export interface BusArrival {
   route_code: number;
   route_descr: string;
+  route_descr_eng: string;
   line_code: number;
   line_id: string;
   line_type: LINE_TYPE;

@@ -63,16 +63,18 @@ export class AppComponent implements OnInit {
       this.translate.setDefaultLang('el');
       await this.storage.initStorage();
       this.storage.getValue('language').then((lang => {
-        this.appSrv.useLanguage(lang);
+        if(!lang) {
+          this.appSrv.useLanguage('el');
+        } else {
+          this.appSrv.useLanguage(lang);
+        }
       }));
-      this.navCtr.navigateRoot("tabs");
       // Request permissions for Location and Notifications
       await this.requestLocationPermissions();
-      if(this.platform.is('capacitor')) {
-        await this.notificationSrv.requestNotificationPermissions();
+      await this.notificationSrv.requestNotificationPermissions();
+      await this.notificationSrv.registerPushNotificationForUser();
 
-        await this.notificationSrv.registerPushNotificationForUser();
-      }
+      this.navCtr.navigateRoot("tabs");
     });
 
   }

@@ -58,6 +58,7 @@ export interface Stop {
     stop_code: number;
     stop_id: string;
     stop_descr: string;
+    stop_descr_eng: string;
     lines: LineStopInfo[]
 }
 

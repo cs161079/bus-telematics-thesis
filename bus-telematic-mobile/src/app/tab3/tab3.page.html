@@ -2,10 +2,10 @@
   <div class="container-start">
     <ion-segment #segm mode="ios" color="primary" value="favLines">
       <ion-segment-button value="favLines" content-id="favLines">
-          <ion-label>Γραμμές</ion-label>
+          <ion-label>{{"LINES" | translate}}</ion-label>
       </ion-segment-button>
       <ion-segment-button value="favStops" content-id="favStops">
-          <ion-label>Στάσεις</ion-label>
+          <ion-label>{{"STOPS" | translate}}</ion-label>
       </ion-segment-button>
     </ion-segment>
   </div>
@@ -28,7 +28,7 @@
         <ion-list style="height: 100%; overflow-y: auto;">
           <ion-card *ngFor="let st of stopSrv.favoriteStopSub | async;" (click)="onSelectStop(st)" style="border-left: solid #0054e2 5px;">
             <ion-card-header>
-              <ion-card-title>{{st.stop_descr}}</ion-card-title>
+              <ion-card-title>{{getStopDescr(st)}}</ion-card-title>
               <ion-card-subtitle>{{st.stop_id}}</ion-card-subtitle>
             </ion-card-header>
             <ion-card-content>

@@ -6,6 +6,7 @@ import { AppComponentModule } from '../components/app-components.module';
 import { NavigatePage } from './navigate.page';
 import { RouterModule, Routes } from '@angular/router';
 import { IonicSelectableComponent } from "ionic-selectable";
+import { TranslateModule } from '@ngx-translate/core';
 
 const routes: Routes = [
   {
@@ -21,7 +22,8 @@ const routes: Routes = [
     FormsModule,
     RouterModule.forChild(routes),
     AppComponentModule,
-    IonicSelectableComponent
+    IonicSelectableComponent,
+    TranslateModule
   ],
   declarations: [
     NavigatePage

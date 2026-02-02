@@ -5,11 +5,10 @@ import { Injectable } from "@angular/core";
 import { map, Observable } from "rxjs";
 import { cbRecord, Line, LineCbs, RouteDto } from "../models/lines.interface";
 import { environment } from "src/environments/environment";
-import { CloseStops, RouteStop } from '../models/stop.interface';
 import { RouteDetails } from './map.service';
 import { BusArrival, BusLocation } from '../models/oasa.interface';
-import { Point } from '../navigate-page/navigate.page';
 import { AppService } from './application.service';
+import { Point } from './backend02.service';
 
 
 @Injectable({
@@ -22,14 +21,6 @@ export class BackendService {
         private appSrv: AppService
     ) {
 
-    }
-
-    getRouteByCode(code: number): Observable<RouteDto> {
-      return (this.httpClnt.get(`${environment.server}/routes/stops?code=${code}`) as Observable<{data: RouteDto}>).pipe(
-        map((body) => {
-          return body.data
-        })
-      );
     }
 
     getLineCbs(code: number): Observable<LineCbs> {
@@ -48,33 +39,8 @@ export class BackendService {
       );
     }
 
-    getStopInfo(stop_code: number): Observable<Stop> {
-      return (this.httpClnt.get(`${environment.server}/stop/info?code=${stop_code}`) as Observable<{data: Stop}>).pipe(
-        map((body) => {
-          return body.data;
-        })
-      );
-    }
-
-    getBusArrivals(stop_code: number): Observable<BusArrival[]> {
-      return (this.httpClnt.get(`${environment.server}/oasa/arrival?code=${stop_code}`) as Observable<{data: BusArrival[];}>).pipe(
-        map((body) => {
-          body.data.sort((a, b) => a.time - b.time)
-          return body.data;
-        })
-      );
-    }
-
     getBusLocation(route_code: number): Observable<BusLocation[]> {
       return (this.httpClnt.get(`${environment.server}/oasa/busLocation?code=${route_code}`) as Observable<{data: BusLocation[];}>).pipe(
-        map((body) => {
-          return body.data;
-        })
-      );
-    }
-
-    getRouteDetails(routeCode: number): Observable<{details: RouteDetails[]; stops: RouteStop[];}> {
-      return (this.httpClnt.get(`${environment.server}/routes/details?code=${routeCode}`) as Observable<{data: {details: RouteDetails[]; stops: RouteStop[]}}>).pipe(
         map((body) => {
           return body.data;
         })

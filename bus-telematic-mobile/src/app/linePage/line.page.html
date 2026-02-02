@@ -55,7 +55,7 @@
                 <div *ngIf="segm.value==='first'" style="height: 80%; display: flex;">
                     <div class="full-list" *ngIf="showList(1)" [ngClass]="showList(1) && showList(0) ? 'mid-list' : ''">
                         <div>
-                            <h5 class="list-title">Πήγαινε</h5>
+                            <h5 class="list-title">{{"DEPARTURE" | translate}}</h5>
                         </div>
                         <ion-list style="height: 100%; overflow-y: auto;">
                             <ion-item *ngFor="let t of filterAboutDirection(1);">
@@ -65,7 +65,7 @@
                     </div>
                     <div class="full-list" *ngIf="showList(0)" [ngClass]="showList(1) && showList(0) ? 'mid-list' : ''">
                         <div>
-                            <h5 class="list-title">Επιστροφή</h5>
+                            <h5 class="list-title">{{"RETURN" | translate}}</h5>
                         </div>
                         <ion-list style="height: 100%; overflow-y: auto;">
                             <ion-item *ngFor="let t of filterAboutDirection(0);">
@@ -81,13 +81,13 @@
                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" (click)="onSelectRoute($event)">
                         {{getSelectedRouteDescr()}}
                     </button>
-                    <label class="floatingLabel" for="floatingButton">Διαδρομές</label>
+                    <label class="floatingLabel" for="floatingButton">{{"ROUTES" | translate}}</label>
                 </div>
                 <div style="height: 85%;" *ngIf="segm.value==='second'">
                     <ion-list style="height: 100%; overflow-y: auto;">
-                        <!-- <ion-item *ngFor="let stp of getSelectedRoute()?.stops;" (click)="onOpenStop($event, stp.stop_code)">
-                            {{stp.stop_code }} - {{stp.stop_descr}}
-                        </ion-item> -->
+                        <ion-item *ngFor="let stp of getStopList();" (click)="onOpenStop($event, stp.stop_code)">
+                            {{stp.stop_code }} - {{getStopDescr(stp)}}
+                        </ion-item>
                     </ion-list>
                 </div>
             </ion-segment-content>
@@ -97,7 +97,7 @@
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" (click)="onSelectRoute($event)">
                     {{getSelectedRouteDescr()}}
                 </button>
-                <label class="floatingLabel" for="floatingButton">Διαδρομές</label>
+                <label class="floatingLabel" for="floatingButton">{{"ROUTES" | translate}}</label>
               </div>
               <div class="map-frame">
                 <div id="line-map"></div>

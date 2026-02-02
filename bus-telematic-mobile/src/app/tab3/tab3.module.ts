@@ -6,6 +6,7 @@ import { Tab3Page } from './tab3.page';
 
 import { Tab3PageRoutingModule } from './tab3-routing.module';
 import { AppComponentModule } from '../components/app-components.module';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
@@ -13,7 +14,8 @@ import { AppComponentModule } from '../components/app-components.module';
     CommonModule,
     FormsModule,
     Tab3PageRoutingModule,
-    AppComponentModule
+    AppComponentModule,
+    TranslateModule
   ],
   declarations: [
     Tab3Page

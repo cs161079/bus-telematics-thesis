@@ -1,3 +1,4 @@
+import { App } from '@capacitor/app';
 import { LineStopInfo } from './../models/lines.interface';
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { ModalController } from "@ionic/angular";
@@ -6,6 +7,8 @@ import { BusArrival } from "../models/oasa.interface";
 import { map, switchMap } from "rxjs";
 import { Line, Stop, StopDto } from "../models/lines.interface";
 import { StopService } from "../service/stop.service";
+import { BackendService02 } from '../service/backend02.service';
+import { AppService } from '../service/application.service';
 
 @Component({
   selector: "app-stop-page",
@@ -17,38 +20,43 @@ export class StopPage implements OnInit, OnDestroy {
   stop_code: number = -1;
 
   private _arrivals: BusArrival[] = [];
-  private _interval: any;
+  private _intervalArrivals: any;
+  private _intervalLoaders: any;
   private _stopRec!: Stop;
   private _loading: boolean = false;
 
   constructor(
     private bankend: BackendService,
+    private backend02: BackendService02,
     private modalCtrl: ModalController,
-    public stopSrv: StopService
+    public stopSrv: StopService,
+    private appSrv: AppService
   ) {
 
   }
   ngOnDestroy(): void {
-    clearInterval(this._interval);
+    clearInterval(this._intervalArrivals);
+    clearInterval(this._intervalLoaders);
+    console.log("Intervals cleared at all...");
   }
 
   ngOnInit(): void {
     this._loading = true;
-    this.bankend.getStopInfo(this.stop_code).pipe(
+    this.backend02.getStopInfo(this.stop_code).pipe(
       switchMap((val) => {
-        this._stopRec = val;
-        return this.bankend.getBusArrivals(this._stopRec.stop_code);
+        this._stopRec = {...val, lines: []};
+        return this.backend02.getBusArrivals(this._stopRec.stop_code);
       })
     ).subscribe(
       (res) => {
         this._arrivals = res;
         const distictLines = this._arrivals.reduce((acc, curr) => {
-          if (!acc.some(a => a.line_id === curr.line_id)) {
+          if (!acc.find(a => a.line_id === curr.line_id)) {
             acc.push(curr);
           }
           return acc;
         }, [] as BusArrival[]);
-        this._stopRec.lines = [];
+
         distictLines.forEach(
           (ln) => {
             this._stopRec.lines.push({
@@ -67,14 +75,18 @@ export class StopPage implements OnInit, OnDestroy {
       }
     );
 
-    this._interval = setInterval(() => {
+    this._intervalArrivals = setInterval(() => {
       console.log("🚀~ Interval for get Bus Arrival run...");
       this.fetchData(false);
     }, 60000);
 
-    this._interval = setInterval(() => {
+    this._intervalLoaders = setInterval(() => {
       this.fixLoaders();
     }, 10000);
+  }
+
+  getStopDescr() {
+    return this.appSrv.language === 'el' ? this._stopRec.stop_descr : this._stopRec.stop_descr_eng;
   }
 
   private stopLoading() {
@@ -92,7 +104,7 @@ export class StopPage implements OnInit, OnDestroy {
       this._loading = true;
     }
 
-    this.bankend.getBusArrivals(this.stopCode).pipe(
+    this.backend02.getBusArrivals(this.stopCode).pipe(
       map((vals) => {
         vals.sort((a, b) => a.time - b.time)
         return vals;
@@ -145,7 +157,7 @@ export class StopPage implements OnInit, OnDestroy {
     return {
       line_code: inRec.line_code,
       line_descr: inRec.route_descr,
-      line_descr_eng: "",
+      line_descr_eng: inRec.route_descr_eng,
       line_id: inRec.line_id,
       line_type: inRec.line_type
     };

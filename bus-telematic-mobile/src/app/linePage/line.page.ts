@@ -1,6 +1,6 @@
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { BackendService } from "../service/backend.service";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, switchMap } from "rxjs";
 import { cbRecord, Direction, Line, LINE_TYPE, LineDetails } from "../models/lines.interface";
 import { ActionSheetButton, ActionSheetController, ModalController } from "@ionic/angular";
 import { DatePipe } from "@angular/common";
@@ -9,7 +9,7 @@ import { StorageService } from "../service/storage.service";
 import { StopPage } from "../stopPage/stop.page";
 import * as L from "leaflet";
 import { MapService } from "../service/map.service";
-import { ActiveSchedule, BackendService02, Schedule, ScheduleTimes } from "../service/backend02.service";
+import { ActiveRoute, ActiveSchedule, BackendService02, Route, Routes, Schedule, ScheduleTimes, Stop } from "../service/backend02.service";
 import { HttpErrorResponse } from "@angular/common/http";
 import { AppService } from "../service/application.service";
 import { TranslateService } from "@ngx-translate/core";
@@ -26,18 +26,17 @@ export class LinePage implements OnInit, OnDestroy{
   private _busLocatInterval: any;
   private _scheduleInterval: any;
 
-  selectedSchedule!: ActiveSchedule
-  selectedSched!: number;
+  selectedSchedule!: ActiveSchedule;
+  selectedRoute!: ActiveRoute;
+  // selectedSched!: number;
   line!: LineDetails;
   lineSchedules!: Schedule[];
 
   @Input()
   line_code: number = -1;
 
-  routes: cbRecord[] = [];
+  routes: Route[] = [];
   altLines: Line[] = [];
-
-  selectedRoute!: number;
 
   drawRoute!: any;
 
@@ -51,7 +50,8 @@ export class LinePage implements OnInit, OnDestroy{
       private mapSrv: MapService,
       private back02: BackendService02,
       private appSrv: AppService,
-      private translate: TranslateService
+      private translate: TranslateService,
+      // private cdr: ChangeDetectorRef
   ) {
 
   }
@@ -61,7 +61,7 @@ export class LinePage implements OnInit, OnDestroy{
   }
 
   ngOnInit(): void {
-    console.log("OnInit method...")
+    console.log("OnInit method...");
   }
 
   ionViewDidEnter() {
@@ -77,8 +77,22 @@ export class LinePage implements OnInit, OnDestroy{
           this.line = data;
           this.getSchedules();
           this.getAltLines();
+          this.getRoutes();
         }
       );
+  }
+
+  private getRoutes() {
+    this.back02.getRoutes(this.line.line_code).subscribe(
+      (dt: Routes) => {
+        this.routes = dt.routes;
+        this.selectedRoute = dt.active_route;
+      },
+      (error) => {
+      },
+      () => {
+      }
+    );
   }
 
   private async getLineInfo() {
@@ -90,9 +104,9 @@ export class LinePage implements OnInit, OnDestroy{
       (data) => {
         this.selectedSchedule = data.active_schedule;
         this.lineSchedules = data.schedules;
-        this.selectedSched = data.active_schedule.sdc_code;
+        // this.selectedSched = data.active_schedule.sdc_code;
       }
-    )
+    );
   }
 
   ionViewWillEnter() {
@@ -121,7 +135,7 @@ export class LinePage implements OnInit, OnDestroy{
                 handler() {
                     console.log(`Recod with code ${rec.code} and Description ${rec.descr} is selected.`);
                 },
-            })
+            });
         });
         return result;
     }
@@ -140,32 +154,33 @@ export class LinePage implements OnInit, OnDestroy{
     }
 
     onSelectRoute(ev: any) {
-      // this.openGlobalAction("Επιλογή διαδρομής", this.routes, (returnedCode: number) => {
-      //   this.selectedRoute = returnedCode;
-      //   this.backendSrv.getRouteByCode(this.selectedRoute).pipe(
-      //     switchMap((data) => {
-      //       this.line.routes = [data];
-      //       return this.backendSrv.getBusLocation(data.route_code);
-      //     })
-      //   ).subscribe(
-      //     (response) => {
-      //       if(response) {
-      //         this.mapSrv.addBusPosition(response);
-      //       }
-      //     },
-      //     (error) => {
-      //       console.log("Error occured on route retrieve. [" +  JSON.stringify(error) + "].");
-      //     },
-      //     async () => {
-      //       this.drawRoute = await this.mapSrv.drawRoute(this.selectedRoute);
-      //     }
-      //   )
-      // });
+      this.openGlobalAction(this.translate.instant("SELECT_ROUTE"), this.routes.map((val) => {
+        return {code: val.route_code, descr: this.appSrv.language === 'el' ? val.route_descr : val.route_descr_eng};
+      }), (returnedCode: number) => {
+        this.back02.getRouteByCode(returnedCode).pipe(
+          switchMap((data) => {
+            this.selectedRoute = data;
+            return this.backendSrv.getBusLocation(returnedCode);
+          })
+        ).subscribe(
+          (response) => {
+            if(response) {
+              this.mapSrv.addBusPosition(response);
+            }
+          },
+          (error) => {
+            console.log("Error occured on route retrieve. [" +  JSON.stringify(error) + "].");
+          },
+          async () => {
+            this.drawRoute = await this.mapSrv.drawRoute(returnedCode);
+          }
+        );
+      }, this.selectedRoute.route_code);
     }
 
     async onSelectAltLine(ev: any) {
       this.openGlobalAction(await firstValueFrom(this.translate.get("ALT_LINES")), this.altLines.map((val) => {
-        return {code: val.line_code, descr: this.appSrv.language === 'el' ? val.line_descr : val.line_descr_eng}
+        return {code: val.line_code, descr: this.appSrv.language === 'el' ? val.line_descr : val.line_descr_eng};
       }),
         (returnedCode: number) => {
           this.loadFullLine(returnedCode);
@@ -175,15 +190,15 @@ export class LinePage implements OnInit, OnDestroy{
     }
 
     onSelectSchedule(ev: any) {
-      this.openGlobalAction("Προγράμματα",
-        this.lineSchedules.map((val, indx, arr) => {
+      this.openGlobalAction(this.translate.instant("SELECT_SCHEDULE"),
+        this.lineSchedules.map((val: any) => {
           return {
             code: val.sdc_code,
             descr: val.sdc_descr
-          }
+          };
         }),
         (returnedCode: number) => {
-          this.selectedSched = returnedCode;
+          // this.selectedSched = returnedCode;
           this.back02.getScheduleDetails(returnedCode, this.line.line_code).subscribe(
             (response) => {
               this.selectedSchedule = response;
@@ -193,19 +208,26 @@ export class LinePage implements OnInit, OnDestroy{
             },
             () => {
               this.itsTime(Direction.come);
-              this.itsTime(Direction.go)
+              this.itsTime(Direction.go);
             }
-          )
-        }
-      );
+          );
+        }, this.selectedSchedule.sdc_code);
+    }
+
+    getStopDescr(stop: Stop) {
+      return this.appSrv.language === 'el' ? stop.stop_descr : stop.stop_descr_eng;
     }
 
     getSelectedRouteDescr() {
-        const result = this.routes.find(rec =>
-            rec.code === this.selectedRoute
-        )?.descr;
+      debugger;
+      if(!this.routes) {
+        return undefined;
+      }
+      const currentRec = this.routes.find((rec) => {
+        return rec.route_code === this.selectedRoute?.route_code
+      });
 
-        return result;
+        return this.appSrv.language === 'el' ? currentRec?.route_descr : currentRec?.route_descr_eng;
     }
 
     async onSegmentChange(ev: any) {
@@ -217,12 +239,19 @@ export class LinePage implements OnInit, OnDestroy{
         // Αυτή εδώ πρέπει να γίνει Promise
         // Εφόσον πάρουν όλα τα δεδομένα για την σχεδίαση της διδρομής μετά
         // να πάρει τις θέσεις των λεοφορείων.
-        this.drawRoute = await this.mapSrv.drawRoute(this.selectedRoute);
+        this.drawRoute = await this.mapSrv.drawRoute(this.selectedRoute.route_code);
         this.enableBusLocationInterval();
 
       } else if(ev.detail.value === "first") {
         this.enableScheduleInterval();
       }
+    }
+
+    getStopList() {
+      if(!this.selectedRoute) {
+        return [];
+      }
+      return this.selectedRoute.stops;
     }
 
     private enableScheduleInterval() {
@@ -247,7 +276,7 @@ export class LinePage implements OnInit, OnDestroy{
     }
 
     private enableBusLocationInterval() {
-      this.backendSrv.getBusLocation(this.selectedRoute).subscribe(
+      this.backendSrv.getBusLocation(this.selectedRoute.route_code).subscribe(
         (vals) => {
           this.mapSrv.addBusPosition(vals);
         },
@@ -256,7 +285,7 @@ export class LinePage implements OnInit, OnDestroy{
         },
         () => {
           this._busLocatInterval = setInterval(() => {
-            this.backendSrv.getBusLocation(this.selectedRoute).subscribe(
+            this.backendSrv.getBusLocation(this.selectedRoute.route_code).subscribe(
               (vals) => {
                 this.mapSrv.addBusPosition(vals);
               }
@@ -278,8 +307,11 @@ export class LinePage implements OnInit, OnDestroy{
     }
 
     getSelectedSchedDescr() {
-      const result = this.lineSchedules.find(rec =>
-          rec.sdc_code === this.selectedSched
+      debugger;
+      const result = this.lineSchedules?.find(
+        (rec: any) => {
+          return rec.sdc_code === this.selectedSchedule.sdc_code
+        }
       )?.sdc_descr;
 
       return result;
@@ -295,14 +327,14 @@ export class LinePage implements OnInit, OnDestroy{
     }
 
     filterAboutDirection(direction: number): ScheduleTimes[] {
-        return this.selectedSchedule.times.filter(x => x.direction === direction);
+        return this.selectedSchedule.times.filter((x: any) => x.direction === direction);
     }
 
     showList(direction: number): boolean {
       if(!this.selectedSchedule) {
         return false;
       }
-      return this.selectedSchedule.times.filter(x => x.direction === direction).length > 0;
+      return this.selectedSchedule.times.filter((x: any) => x.direction === direction).length > 0;
     }
 
     getLineCode() {
