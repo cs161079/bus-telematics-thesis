@@ -75,10 +75,10 @@ export class JobPage implements OnInit{
   }
 
   openErrorDetails(job: CronjobRec) {
-    const initialState = {
+    const data = {
       errorDescr: job.error
     };
-    this.modalSrv.show(ErrorComponent, {initialState});
+    this.modalSrv.show(ErrorComponent, {initialState: data,});
   }
 
   onPageClick(ev: any, i: number) {

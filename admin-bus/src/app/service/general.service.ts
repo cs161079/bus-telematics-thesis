@@ -28,6 +28,7 @@ export class GeneralService {
   }
 
   showWarningAlert(iMess: string, timeOut?: number) {
+    console.warn(iMess);
     this._alerts.next({
       message: iMess,
       type: AlertType.WARNING

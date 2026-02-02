@@ -10,7 +10,7 @@ export class RoleGuard implements CanActivate {
   constructor(
     private authSrv: OAuthService,
     private router: Router,
-    private generalSrv: GeneralService
+    private generalSrv: GeneralService,
   ) {}
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): MaybeAsync<GuardResult> {
     const roles = this.authSrv.getRoles();
