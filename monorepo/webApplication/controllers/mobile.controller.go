@@ -2,13 +2,10 @@ package controllers
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"time"
 
-	"github.com/cs161079/monorepo/common/db"
 	"github.com/cs161079/monorepo/common/models"
 	"github.com/cs161079/monorepo/common/service"
 	"github.com/cs161079/monorepo/common/utils"
@@ -52,14 +49,13 @@ func (c *MobileControllerImplementation) AddRouters(eng *gin.RouterGroup) {
 	apiGroup.POST("/plan", c.planTrip)
 
 	lineGroup := eng.Group("/lines")
+
+	lineGroup.GET("/routes", c.getRoutes)
+	lineGroup.GET("/schedules", c.getScheddules)
 	lineGroup.GET("/list", c.getLineList)
 	lineGroup.GET("/search", c.searchLine)
 	lineGroup.GET("/details", c.getLineInfo)
-	lineGroup.GET("/routes", c.getRoutes)
-	lineGroup.GET("/schedules", c.getScheddules)
 	lineGroup.GET("/alt/list", c.alternativeLines)
-
-	lineGroup.GET("/cbs", c.lineCombos)
 
 	routeGroup := eng.Group("/routes")
 	routeGroup.GET("/stops", c.stopListByRouteCode)
@@ -232,27 +228,6 @@ func (c *MobileControllerImplementation) getLineInfo(ctx *gin.Context) {
 		models.HttpResponse(ctx, err)
 		return
 	}
-
-	// var route *models.RouteDto
-	// route, err = c.routeSvc.SelectFirstRouteByLinecodeWithStops(*line_code)
-
-	// if err != nil {
-	// 	// ctx.AbortWithStatusJSON(http.StatusOK, map[string]any{"error": err.Error(), "code": "err-001"})
-	// 	models.HttpResponse(ctx, err)
-	// 	return
-	// }
-
-	// line.Route = *route
-
-	// var schedule *models.ScheduleMaster
-
-	// schedule, err = c.schedSvc.SelectByLineSdcCodeWithTimes(line.Line_Code, line.Sdc_Cd)
-	// if err != nil {
-	// 	//ctx.AbortWithStatusJSON(http.StatusOK, map[string]any{"error": err.Error(), "code": "err-001"})
-	// 	models.HttpResponse(ctx, err)
-	// 	return
-	// }
-	// line.Schedule = *schedule
 
 	ctx.JSON(http.StatusOK, map[string]any{"duration": time.Since(start).Seconds(), "data": line})
 }
@@ -437,48 +412,4 @@ func (t *MobileControllerImplementation) alternativeLines(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, map[string]any{"duration": time.Since(start).Seconds(), "data": altLines})
-}
-
-func (t *MobileControllerImplementation) lineCombos(ctx *gin.Context) {
-	start := time.Now()
-	var code = ctx.Query("code")
-	if code == "" {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, map[string]any{"error": "Line code must have a value."})
-		return
-	}
-	lineCode, err := utils.StrToInt32(code)
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusOK, map[string]any{"error": fmt.Sprintf("Parameter code must be a valid number [value=%s]!", code), "code": "err-001"})
-	}
-
-	var routesCb []models.ComboRec
-	dbResult := t.connection.Table(db.ROUTETABLE).Select("route_code as code, route_descr as descr").Where("ln_code=?", *lineCode).Find(&routesCb)
-	if dbResult.RowsAffected == 0 {
-		dbResult.Error = gorm.ErrRecordNotFound
-	}
-	if dbResult.Error != nil {
-		if errors.Is(dbResult.Error, gorm.ErrRecordNotFound) {
-			ctx.AbortWithStatusJSON(http.StatusNotFound, map[string]any{"error": fmt.Sprintf("No route were found for Line with code=%d!", *lineCode), "code": "err-001"})
-			return
-		} else {
-			panic(fmt.Sprintln("Database Error ", dbResult.Error.Error()))
-		}
-	}
-
-	var sdcCb []models.ComboRec
-	dbResult = t.connection.Table(db.SCHEDULEMASTERTABLE).Distinct("schedulemaster.sdc_code as code, schedulemaster.sdc_descr as descr").
-		Joins("LEFT JOIN "+db.SCHEDULETIMETABLE+" ON schedulemaster.sdc_code=scheduletime.sdc_cd").Where("scheduletime.ln_code=?", *lineCode).Find(&sdcCb)
-	// if dbResult.RowsAffected == 0 {
-	// 	dbResult.Error = gorm.ErrRecordNotFound
-	// }
-	if dbResult.Error != nil {
-		if errors.Is(dbResult.Error, gorm.ErrRecordNotFound) {
-			ctx.AbortWithStatusJSON(http.StatusOK, map[string]any{"error": fmt.Sprintf("No scheduled routes were found for Line with code=%d!", *lineCode), "code": "err-001"})
-			return
-		} else {
-			panic(fmt.Sprintln("Database Error ", dbResult.Error.Error()))
-		}
-	}
-	var response map[string]interface{} = map[string]interface{}{"routesCb": routesCb, "sdcCb": sdcCb}
-	ctx.JSON(http.StatusOK, map[string]any{"duration": time.Since(start).Seconds(), "data": response})
 }

@@ -6,7 +6,7 @@ import { environment } from 'src/environments/environment';
 import { AppService } from './application.service';
 import { CloseStops, RouteStop } from '../models/stop.interface';
 import { RouteDetails } from './map.service';
-import { BusArrival } from '../models/oasa.interface';
+import { BusArrival, BusLocation } from '../models/oasa.interface';
 import { TranslateService } from '@ngx-translate/core';
 
 export interface ScheduleDto {
@@ -226,6 +226,15 @@ export class BackendService02 {
       })
     );
   }
+
+  getBusLocation(route_code: number): Observable<BusLocation[]> {
+    const url = `${environment.server}/oasa/busLocation`;
+      return this.http.get<{data: BusLocation[]}>(url, {params: new HttpParams().set("code", route_code)}).pipe(
+        map((body) => {
+          return body.data;
+        })
+      );
+    }
 
   getBusArrivals(stop_code: number): Observable<BusArrival[]> {
     const url = `${environment.server}/oasa/arrival`

@@ -23,24 +23,8 @@ export class BackendService {
 
     }
 
-    getLineCbs(code: number): Observable<LineCbs> {
-        return (this.httpClnt.get(`${environment.server}/lines/cbs?code=${code}`) as Observable<{data: LineCbs}>).pipe(
-            map((body) => {
-                return body.data;
-            })
-        );
-    }
-
     lineSearch(text: string): Observable<Line[]> {
       return (this.httpClnt.get(`${environment.server}/lines/search?text=${text}`) as Observable<{data: Line[]}>).pipe(
-        map((body) => {
-          return body.data;
-        })
-      );
-    }
-
-    getBusLocation(route_code: number): Observable<BusLocation[]> {
-      return (this.httpClnt.get(`${environment.server}/oasa/busLocation?code=${route_code}`) as Observable<{data: BusLocation[];}>).pipe(
         map((body) => {
           return body.data;
         })

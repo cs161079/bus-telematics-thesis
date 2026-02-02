@@ -1,5 +1,4 @@
-import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from "@angular/core";
-import { BackendService } from "../service/backend.service";
+import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { firstValueFrom, switchMap } from "rxjs";
 import { cbRecord, Direction, Line, LINE_TYPE, LineDetails } from "../models/lines.interface";
 import { ActionSheetButton, ActionSheetController, ModalController } from "@ionic/angular";
@@ -41,7 +40,6 @@ export class LinePage implements OnInit, OnDestroy{
   drawRoute!: any;
 
   constructor(
-      private backendSrv: BackendService,
       private actionCtrl: ActionSheetController,
       private modalCtrl: ModalController,
       private datePipe: DatePipe,
@@ -160,7 +158,7 @@ export class LinePage implements OnInit, OnDestroy{
         this.back02.getRouteByCode(returnedCode).pipe(
           switchMap((data) => {
             this.selectedRoute = data;
-            return this.backendSrv.getBusLocation(returnedCode);
+            return this.back02.getBusLocation(returnedCode);
           })
         ).subscribe(
           (response) => {
@@ -276,7 +274,7 @@ export class LinePage implements OnInit, OnDestroy{
     }
 
     private enableBusLocationInterval() {
-      this.backendSrv.getBusLocation(this.selectedRoute.route_code).subscribe(
+      this.back02.getBusLocation(this.selectedRoute.route_code).subscribe(
         (vals) => {
           this.mapSrv.addBusPosition(vals);
         },
@@ -285,7 +283,7 @@ export class LinePage implements OnInit, OnDestroy{
         },
         () => {
           this._busLocatInterval = setInterval(() => {
-            this.backendSrv.getBusLocation(this.selectedRoute.route_code).subscribe(
+            this.back02.getBusLocation(this.selectedRoute.route_code).subscribe(
               (vals) => {
                 this.mapSrv.addBusPosition(vals);
               }
