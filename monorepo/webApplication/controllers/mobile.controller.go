@@ -55,6 +55,7 @@ func (c *MobileControllerImplementation) AddRouters(eng *gin.RouterGroup) {
 	lineGroup.GET("/list", c.getLineList)
 	lineGroup.GET("/search", c.searchLine)
 	lineGroup.GET("/details", c.getLineInfo)
+	lineGroup.GET("/routes", c.getRoutes)
 	lineGroup.GET("/schedules", c.getScheddules)
 	lineGroup.GET("/alt/list", c.alternativeLines)
 
@@ -66,7 +67,7 @@ func (c *MobileControllerImplementation) AddRouters(eng *gin.RouterGroup) {
 	// routeGroup.GET("/capacity", c.busCapacity)
 
 	stopGrp := eng.Group("/stop")
-	stopGrp.GET("/info", c.getStopInfo)
+	stopGrp.GET("/details", c.getStopInfo)
 	stopGrp.GET("/closeStops", c.closeStops)
 
 	scheduleGroup := eng.Group("/schedule")
@@ -76,6 +77,30 @@ func (c *MobileControllerImplementation) AddRouters(eng *gin.RouterGroup) {
 	oasaGrp.GET("/arrival", c.getStopArrivals)
 	oasaGrp.GET("/busLocation", c.getBusLocation)
 
+}
+
+func (c *MobileControllerImplementation) getRoutes(ctx *gin.Context) {
+	start := time.Now()
+	line_code_param := ctx.Query("code")
+	if line_code_param == "" {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, map[string]any{"error": "Line code is not provided."})
+		return
+	}
+	line_code, err := utils.StrToInt32(line_code_param)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, map[string]any{"error": "Line code is not a valid number."})
+		return
+	}
+	data, err := c.routeSvc.SelectRoutesByLineCode(*line_code)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, map[string]any{"error": "Line code is not a valid number."})
+		return
+	}
+	if data == nil {
+		ctx.AbortWithStatusJSON(http.StatusNotFound, map[string]any{"error": "No data found for this line"})
+		return
+	}
+	ctx.JSON(http.StatusOK, map[string]any{"duration": time.Since(start).Seconds(), "data": *data})
 }
 
 func (c *MobileControllerImplementation) getSchedule(ctx *gin.Context) {
@@ -144,16 +169,14 @@ func (c *MobileControllerImplementation) stopListByRouteCode(ctx *gin.Context) {
 		return
 	}
 
-	var rt models.RouteDto
 	data, err := c.routeSvc.SelectRouteWithStops(*route_code)
 	if err != nil {
 		// ctx.AbortWithStatusJSON(http.StatusOK, map[string]any{"error": err.Error(), "code": "err-001"})
 		models.HttpResponse(ctx, err)
 		return
 	}
-	rt = *data
 
-	ctx.JSON(http.StatusOK, map[string]any{"duration": time.Since(start).Seconds(), "data": rt})
+	ctx.JSON(http.StatusOK, map[string]any{"duration": time.Since(start).Seconds(), "data": *data})
 }
 
 func (c *MobileControllerImplementation) searchLine(ctx *gin.Context) {
@@ -368,10 +391,15 @@ func (c *MobileControllerImplementation) closeStops(ctx *gin.Context) {
 	start := time.Now()
 	latParam := ctx.Query("lat")
 	lngParam := ctx.Query("lng")
+	minRadiusParam := ctx.Query("minRadius")
+	maxRadiusParam := ctx.Query("maxRadius")
+
 	lat := utils.StrToFloat(latParam)
 	lng := utils.StrToFloat(lngParam)
+	minRadius := utils.StrToFloat32(minRadiusParam)
+	maxRadius := utils.StrToFloat32(maxRadiusParam)
 
-	closeStops, err := c.stopSrv.SelectClosestStops02(lat, lng)
+	closeStops, err := c.stopSrv.SelectClosestStops02(lat, lng, minRadius, maxRadius)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, map[string]any{"error": err.Error()})
 		return

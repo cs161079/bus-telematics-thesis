@@ -20,7 +20,7 @@ type StopRepository interface {
 	List01(int32) (*[]models.Stop, error)
 	DeleteAll() error
 	SelectClosestStops(float64, float64, float32, float32) ([]models.StopDto, error)
-	SelectClosestStops02(float64, float64) ([]models.StopDto, error)
+	SelectClosestStops02(float64, float64, float32, float32) ([]models.StopDto, error)
 	WithTx(*gorm.DB) stopRepository
 
 	SelectAll() ([]models.Stop, error)
@@ -130,7 +130,7 @@ func haversine(lat1, lon1, lat2, lon2 float64) float64 {
 	return R * c
 }
 
-func (r stopRepository) SelectClosestStops02(latitude float64, longtitude float64) ([]models.StopDto, error) {
+func (r stopRepository) SelectClosestStops02(latitude float64, longtitude float64, minRadius float32, maxRadius float32) ([]models.StopDto, error) {
 	sqlDb, err := r.DB.DB()
 	if err != nil {
 		return nil, err
@@ -152,7 +152,7 @@ func (r stopRepository) SelectClosestStops02(latitude float64, longtitude float6
 		}
 		// mapper.MapStruct(stop, &stopDto)
 		stopDto.Distance = haversine(latitude, longtitude, stopDto.Stop_lat, stopDto.Stop_lng)
-		if stopDto.Distance < 1.5 {
+		if stopDto.Distance < float64(maxRadius) && stopDto.Distance > float64(minRadius) {
 			stops = append(stops, stopDto)
 		}
 	}
@@ -163,9 +163,9 @@ func (r stopRepository) SelectClosestStops02(latitude float64, longtitude float6
 	})
 
 	// Return the closest 10 stops
-	if len(stops) > 20 {
-		stops = stops[:20]
-	}
+	// if len(stops) > 20 {
+	// 	stops = stops[:20]
+	// }
 	return stops, nil
 }
 

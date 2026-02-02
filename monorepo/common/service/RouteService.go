@@ -23,10 +23,30 @@ type RouteService interface {
 	Route02InsertChunkArray(chunkSize int, allData []models.Route02) error
 	Route01InsertArr([]models.Route01) ([]models.Route01, error)
 	Route01InsertChunkArray(chunkSize int, allData []models.Route01) error
+	/*
+		SelectRouteByLineCode ανακτά τις διαδρομές από την βάση δεδομένων με τον
+		κωδικό της γραμμής
+
+		@param line_code
+		@return
+		@return error
+	*/
+	SelectRoutesByLineCode(int32) (*models.RouteCds, error)
+
+	/*
+		SelectFirstRouteByLinecodeWithStops επιστρέφει τον κωδικό της διαδρομής και τις στάσης ordered με το
+		senu.
+
+		@param line_code int32
+		@return *models.RouteDto02
+		@return error
+	*/
+	SelectFirstRouteByLinecodeWithStops(line_code int32) (*models.RouteDto02, error)
+
+	SelectRouteWithStops(int32) (*models.RouteDto02, error)
+
 	AllRoute01(context.Context) (*sql.Rows, error)
 
-	SelectFirstRouteByLinecodeWithStops(line_code int32) (*models.RouteDto, error)
-	SelectRouteWithStops(int32) (*models.RouteDto, error)
 	SelectRouteDetails(int32) ([]models.Route01Dto, error)
 	SelectRouteStop(int32) ([]models.StopDto03, error)
 	PassengersCount(int, int) (*models.BusCapacityDt02, error)
@@ -152,6 +172,7 @@ func (s routeService) Route01InsertChunkArray(chunkSize int, allData []models.Ro
 		stratIndex = endIndex
 		endIndex = stratIndex + chunkSize
 		if stratIndex > len(allData)-1 {
+
 			//logger.INFO("Η εισαγωγή λεπτομερειών διαδρομών ολοκληρώθηκε.")
 			break
 		} else if endIndex > len(allData)-1 {
@@ -167,6 +188,53 @@ func (s routeService) Route01InsertChunkArray(chunkSize int, allData []models.Ro
 	return nil
 }
 
+func Filter[T any](items []T, keep func(T) bool) []T {
+	result := make([]T, 0, len(items))
+	for _, item := range items {
+		if keep(item) {
+			result = append(result, item)
+		}
+	}
+	return result
+}
+
+func (s routeService) SelectRoutesByLineCode(line_code int32) (*models.RouteCds, error) {
+	routes, err := s.repo.SelectRouteByLineCode(line_code)
+	if err != nil {
+		return nil, err
+	}
+	// εάν δεν υπάρχουν διαδρομές για την γραμμή το σταματτάω
+	if len(routes) == 0 {
+		return nil, nil
+	}
+
+	mainRoutes := Filter(routes, func(u models.RouteDto01) bool {
+		return u.RouteType == 1
+	})
+	activeRoute := routes[0].RouteCode
+	if len(mainRoutes) > 0 {
+		activeRoute = mainRoutes[0].RouteCode
+	}
+
+	routeWithStops, err := s.repo.SelectByRouteCodeWithStops(activeRoute)
+	if err != nil {
+		return nil, err
+	}
+
+	rtDto, err := s.routeMapper.RouteToRouteDto(*routeWithStops)
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.RouteCds{
+		Routes: routes,
+		ActiveRoute: models.RouteDto02{
+			RouteCode: activeRoute,
+			Stops:     rtDto.Stops,
+		},
+	}, nil
+}
+
 func (s routeService) AllRoute01(ctx context.Context) (*sql.Rows, error) {
 	return s.repo01.AllRecords(ctx)
 }
@@ -179,22 +247,32 @@ func (s routeService) DeleteRoute01() error {
 	return s.repo01.Delete()
 }
 
-func (s routeService) SelectFirstRouteByLinecodeWithStops(line_code int32) (*models.RouteDto, error) {
+func (s routeService) SelectFirstRouteByLinecodeWithStops(line_code int32) (*models.RouteDto02, error) {
 	origData, err := s.repo.SelectByLineCodeWithStops(line_code)
 	if err != nil {
 		return nil, err
 	}
-	return s.routeMapper.RouteToRouteDto(*origData)
+	dt, err := s.routeMapper.RouteToRouteDto(*origData)
+	if err != nil {
+		return nil, err
+	}
+	return &models.RouteDto02{RouteCode: dt.RouteCode, Stops: dt.Stops}, nil
 }
 
-func (s routeService) SelectRouteWithStops(routeCode int32) (*models.RouteDto, error) {
+func (s routeService) SelectRouteWithStops(routeCode int32) (*models.RouteDto02, error) {
 
 	// Get Data from Database
 	origData, err := s.repo.SelectByRouteCodeWithStops(routeCode)
 	if err != nil {
 		return nil, err
 	}
-	return s.routeMapper.RouteToRouteDto(*origData)
+	dt, err := s.routeMapper.RouteToRouteDto(*origData)
+	if err != nil {
+		return nil, err
+	}
+	return &models.RouteDto02{
+		RouteCode: dt.RouteCode, Stops: dt.Stops,
+	}, nil
 }
 
 func (s routeService) SelectRouteDetails(routeCode int32) ([]models.Route01Dto, error) {

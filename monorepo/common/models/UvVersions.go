@@ -10,8 +10,8 @@ const (
 )
 
 type UVersionsOasa struct {
-	Uv_descr          string `json:"uv_descr" oasa:"UV_DESCR"`
-	Uv_lastupdatelong int64  `json:"uv_lastupdatelong" oasa:"UV_LASTUPDATELONG"`
+	Uv_descr          string `json:"UV_DESCR" oasa:"UV_DESCR"`
+	Uv_lastupdatelong int64  `json:"UV_LASTUPDATELONG" oasa:"UV_LASTUPDATELONG"`
 }
 
 type UVersions struct {

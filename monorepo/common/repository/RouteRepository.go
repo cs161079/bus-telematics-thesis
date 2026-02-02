@@ -26,6 +26,9 @@ type RouteRepository interface {
 	//
 	// @returns []models.StopArrival, error.
 	ExtraArrivalInfo(int32) ([]models.StopArrival, error)
+	/*
+	 */
+	SelectRouteByLineCode(int32) ([]models.RouteDto01, error)
 	List01() ([]models.Route, error)
 	WithTx(*gorm.DB) routeRepository
 	DeleteAll() error
@@ -45,6 +48,14 @@ func NewRouteRepository(connection *gorm.DB) RouteRepository {
 	return routeRepository{
 		DB: connection,
 	}
+}
+
+func (r routeRepository) SelectRouteByLineCode(line_code int32) ([]models.RouteDto01, error) {
+	var results []models.RouteDto01
+	if err := r.DB.Table(db.ROUTETABLE).Where("ln_code=?", line_code).Find(&results).Error; err != nil {
+		return nil, err
+	}
+	return results, nil
 }
 
 func (r routeRepository) SelectByCode(routeCode int32) (*models.Route, error) {
@@ -146,7 +157,8 @@ func (r routeRepository) InsertArray(entiryArr []models.Route) ([]models.Route, 
 
 func (r routeRepository) ExtraArrivalInfo(stop_code int32) ([]models.StopArrival, error) {
 	var result []models.StopArrival
-	dbResult := r.DB.Select("route.route_code", "line.line_code", "route.route_descr", "line.line_id, line.line_type").Table(db.ROUTESTOPSTABLE).Joins(
+	dbResult := r.DB.Select("route.route_code", "line.line_code", "route.route_descr", "route.route_descr_eng",
+		"line.line_id, line.line_type").Table(db.ROUTESTOPSTABLE).Joins(
 		"LEFT JOIN route on route02.rt_code=route.route_code").Joins(
 		"LEFT JOIN line on route.ln_code=line.line_code").Where(
 		"route02.stp_code=?", stop_code).Find(&result)

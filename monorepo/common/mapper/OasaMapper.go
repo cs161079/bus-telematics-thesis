@@ -1,6 +1,11 @@
 package mapper
 
-import models "github.com/cs161079/monorepo/common/models"
+import (
+	"encoding/json"
+
+	models "github.com/cs161079/monorepo/common/models"
+	logger "github.com/cs161079/monorepo/common/utils/goLogger"
+)
 
 func NewOasaMapper() OasaMapper {
 	return &OasaMapperImpl{}
@@ -15,13 +20,19 @@ type OasaMapperImpl struct {
 }
 
 func (m OasaMapperImpl) GetOasaStopArrivals(genArray []interface{}) []models.StopArrivalOasa {
+
+	// Transform data to JSON
+	byts, err := json.Marshal(genArray)
+	if err != nil {
+		logger.ERROR("Error on json conversation.")
+		return nil
+	}
+
 	var result []models.StopArrivalOasa = make([]models.StopArrivalOasa, 0)
-	for _, rec := range genArray {
-		var oasaRec models.StopArrivalOasa = models.StopArrivalOasa{}
-		internalMapper(rec.(map[string]interface{}), &oasaRec)
-		// var stopArrival models.StopArrival = models.StopArrival{}
-		// MapStruct(oasaRec, &stopArrival)
-		result = append(result, oasaRec)
+	err = json.Unmarshal(byts, &result)
+	if err != nil {
+		logger.ERROR("Error on json unmarshalling.")
+		return nil
 	}
 	return result
 }

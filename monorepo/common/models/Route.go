@@ -1,6 +1,8 @@
 package models
 
-import "github.com/cs161079/monorepo/common/db"
+import (
+	"github.com/cs161079/monorepo/common/db"
+)
 
 /*
 ******************************************
@@ -41,6 +43,23 @@ type RouteDto struct {
 	RouteDistance float32 `json:"route_distance"`
 	// Route02s      []Route02Dto02 `json:"stops"`
 	Stops []StopDto02 `json:"stops"`
+}
+
+type RouteDto01 struct {
+	RouteCode     int32  `json:"route_code"`
+	RouteDescr    string `json:"route_descr"`
+	RouteDescrEng string `json:"route_descr_eng"`
+	RouteType     int8   `json:"route_type"`
+}
+
+type RouteDto02 struct {
+	RouteCode int32       `json:"route_code"`
+	Stops     []StopDto02 `json:"stops"`
+}
+
+type RouteCds struct {
+	Routes      []RouteDto01 `json:"routes"`
+	ActiveRoute RouteDto02   `json:"active_route"`
 }
 
 func (Route) TableName() string {

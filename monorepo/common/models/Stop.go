@@ -53,11 +53,12 @@ type StopDto02 struct {
 }
 
 type StopDto03 struct {
-	Stop_code  int32   `json:"stop_code"`
-	Stop_descr string  `json:"stop_descr"`
-	Stop_lat   float64 `json:"stop_lat"`
-	Stop_lng   float64 `json:"stop_lng"`
-	Senu       int16   `json:"stop_senu"`
+	StopCode     int32   `json:"stop_code"`
+	StopDescr    string  `json:"stop_descr"`
+	StopDescrEng string  `json:"stop_descr_eng"`
+	StopLat      float64 `json:"stop_lat"`
+	StopLng      float64 `json:"stop_lng"`
+	Senu         int16   `json:"stop_senu"`
 }
 
 // type StopOasa struct {
@@ -83,14 +84,6 @@ type StopDto struct {
 	Stop_lat       float64 `json:"stop_lat"`
 	Stop_lng       float64 `json:"stop_lng"`
 	Distance       float64 `json:"distance"`
-}
-
-// Αυτό μπορεί να το αλλάξω.
-// Το ήθελα για την σελίδα της στάσης
-type StopDtoBasicInfo struct {
-	StopID     string `json:"stop_id"`
-	Stop_code  int32  `json:"stop_code"`
-	Stop_descr string `json:"stop_descr"`
 }
 
 type StopM struct {

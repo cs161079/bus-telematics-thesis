@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
@@ -356,14 +357,29 @@ func (s *syncService) DeleteAll() error {
 }
 
 func (s *syncService) uVersionFromOasa() ([]dao.UVersion01, error) {
+
+	// HTTP Request in OASA server
 	response := s.restService.OasaRequestApi00("getUVersions", nil)
 	if response.Error != nil {
 		return nil, response.Error
 	}
+	// General Response interface{} to JSON
+	jsonData, err := json.Marshal(response.Data)
+	if err != nil {
+		panic(err.Error())
+	}
+	// JSON to OASA Versions Array
+	var oasaVersions []models.UVersionsOasa = make([]models.UVersionsOasa, 0)
+	err = json.Unmarshal(jsonData, &oasaVersions)
+	if err != nil {
+		logger.ERROR(err.Error())
+		panic(err.Error())
+	}
+	// For loop to OASA version array
 	var mapper = mapper.NewUVersionMapper()
 	var result []dao.UVersion01 = make([]dao.UVersion01, 0)
-	for _, rec := range response.Data.([]interface{}) {
-		appRec := mapper.OasaToUVersions(mapper.GeneralUVersions(rec))
+	for _, rec := range oasaVersions {
+		appRec := mapper.OasaToUVersions(rec)
 		appRec01 := dao.UVersion01{
 			UVersion: appRec,
 		}
@@ -469,7 +485,7 @@ func (s *syncService) syncLines() error {
 	//var dbConnection *gorm.DB = ctx.Value(db.CONNECTIONVAR).(*gorm.DB)
 	// **************************************************************************
 
-	lineSrv := s.lineService //service.NewLineService(repository.NewLineRepository(dbConnection))
+	//lineSrv := s.lineService //service.NewLineService(repository.NewLineRepository(dbConnection))
 	var restSrv = s.restService
 
 	response := restSrv.OasaRequestApi00("webGetLinesWithMLInfo", nil)
@@ -479,9 +495,22 @@ func (s *syncService) syncLines() error {
 	// TODO: Το έκοψα γιατί δεν θα κάνω εδώ το Delete
 	logger.INFO("\tFetch lines data...")
 	s.HelpLine = make(map[int32]models.Line)
-	for _, ln := range response.Data.([]any) {
-		lineOasa := lineSrv.GetMapper().GenDtLineOasa(ln.(map[string]interface{}))
-		line := lineSrv.GetMapper().OasaToLine(lineOasa)
+	// General Response interface{} to JSON
+	jsonData, err := json.Marshal(response.Data)
+	if err != nil {
+		panic(err.Error())
+	}
+	// JSON to OASA Versions Array
+	var lines []models.Line = make([]models.Line, 0)
+	err = json.Unmarshal(jsonData, &lines)
+	if err != nil {
+		logger.ERROR(err.Error())
+		panic(err.Error())
+	}
+
+	for _, line := range lines {
+		// lineOasa := lineSrv.GetMapper().GenDtLineOasa(ln.(map[string]interface{}))
+		// line := lineSrv.GetMapper().OasaToLine(lineOasa)
 		line.LineType = models.LINE_TYPE_BUS
 		if len(line.LineID) <= 2 {
 			_, err := utils.StrToInt8(line.LineID)

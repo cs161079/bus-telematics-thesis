@@ -13,8 +13,8 @@ type StopService interface {
 	InsertChunkArray(chunkSize int, allData []models.Stop) error
 	DeleteAll() error
 	WithTrx(*gorm.DB) stopService
-	SelectByCode(int32) (*models.StopDtoBasicInfo, error)
-	SelectClosestStops02(latitude float64, longtitude float64) ([]models.StopDto, error)
+	SelectByCode(int32) (*models.StopDto02, error)
+	SelectClosestStops02(float64, float64, float32, float32) ([]models.StopDto, error)
 
 	SelectStops() ([]models.Stop, error)
 }
@@ -73,8 +73,8 @@ func (s stopService) InsertChunkArray(chunkSize int, allData []models.Stop) erro
 	return nil
 }
 
-func (s stopService) SelectByCode(stop_code int32) (*models.StopDtoBasicInfo, error) {
-	var result models.StopDtoBasicInfo = models.StopDtoBasicInfo{}
+func (s stopService) SelectByCode(stop_code int32) (*models.StopDto02, error) {
+	var result models.StopDto02 = models.StopDto02{}
 	stopPtr, err := s.repo.SelectByCode(stop_code)
 	if err != nil {
 		return nil, err
@@ -87,11 +87,11 @@ func is_in_greece(lat float64, lng float64) bool {
 	return 34.8 <= lat && lat <= 41.8 && 19.3 <= lng && lng <= 28.3
 }
 
-func (s stopService) SelectClosestStops02(latitude float64, longtitude float64) ([]models.StopDto, error) {
+func (s stopService) SelectClosestStops02(latitude float64, longtitude float64, minRadius float32, maxRadius float32) ([]models.StopDto, error) {
 	if !is_in_greece(latitude, longtitude) {
 		return make([]models.StopDto, 0), nil
 	}
-	return s.repo.SelectClosestStops02(latitude, longtitude)
+	return s.repo.SelectClosestStops02(latitude, longtitude, minRadius, maxRadius)
 }
 
 func (s stopService) SelectStops() ([]models.Stop, error) {

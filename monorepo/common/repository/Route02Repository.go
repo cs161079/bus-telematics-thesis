@@ -88,7 +88,7 @@ func (r route02Repository) InsertRoute02Arr(entityArr []models.Route02) error {
 func (r route02Repository) SelectRouteStops(routeCode int32) ([]models.StopDto03, error) {
 	var result []models.StopDto03
 	dbResult := r.DB.
-		Select("stop.stop_code, stop.stop_descr, stop.stop_lat, stop.stop_lng, route02.senu").
+		Select("stop.stop_code, stop.stop_descr, stop.stop_descr_eng, stop.stop_lat, stop.stop_lng, route02.senu").
 		Table(db.ROUTESTOPSTABLE).
 		Joins("LEFT JOIN stop on route02.stp_code=stop.stop_code").
 		Where("route02.rt_code=?", routeCode).Order("route02.senu").Find(&result)

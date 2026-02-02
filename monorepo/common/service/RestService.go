@@ -102,36 +102,38 @@ func (r restService) OasaRequestApi02(action string) *OasaResponse {
 	var req OpswHttpRequest = OpswHttpRequest{
 		Method:   http.MethodGet,
 		Endpoint: fmt.Sprintf("%s/api/?act=%s", oasaApplicationHost, action),
-		Headers:  map[string]string{"Accept-Encoding": "gzip, deflate"},
+		Headers:  map[string]string{"Accept-Encoding": "gzip"},
 	}
-	responseByte, err := internalHttpRequest(req)
+	bodyBytes, err := internalHttpRequest(req)
 
 	if err != nil {
 		return &OasaResponse{Error: err, Data: nil}
 	}
 
-	// if response.StatusCode == http.StatusInternalServerError {
-	// 	return &OasaResponse{Error: fmt.Errorf(models.INTERNALL_SERVER_ERROR), Data: nil}
-	// 	// return nil, fmt.Errorf(models.INTERNALL_SERVER_ERROR)
-	// }
-
-	reader, err := gzip.NewReader(bytes.NewReader(responseByte))
-
-	defer reader.Close()
+	// Double decompress
+	gr, err := gzip.NewReader(bytes.NewReader(bodyBytes))
 	if err != nil {
-		return &OasaResponse{Error: err, Data: nil}
-		// return nil, err
+		panic(err)
+	}
+	decompressedBytes01, err := io.ReadAll(gr)
+	gr.Close()
+	if err != nil {
+		panic(err)
 	}
 
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(reader)
-	responseStr := buf.String()
-	if responseStr == "" {
-		return &OasaResponse{Error: fmt.Errorf("Server response empty."), Data: nil}
+	gr, err = gzip.NewReader(bytes.NewReader(decompressedBytes01))
+	if err != nil {
+		panic(err)
 	}
-
-	responseStr = responseStr[1 : len(responseStr)-2]
-	syncDataLines := strings.Split(responseStr, "),(")
+	decompressedBytes, err := io.ReadAll(gr)
+	gr.Close()
+	if err != nil {
+		panic(err)
+	}
+	// Μετατρέπουμε σε string (θα είναι JSON)
+	var decompressedStr = string(decompressedBytes)
+	decompressedStr = decompressedStr[1 : len(decompressedStr)-2]
+	syncDataLines := strings.Split(decompressedStr, "),(")
 
 	return &OasaResponse{Data: syncDataLines, Error: err}
 }
