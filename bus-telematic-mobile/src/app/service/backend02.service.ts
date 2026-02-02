@@ -1,8 +1,8 @@
 import { Line, LineDetails, ScheduleMaster, ScheduleTime } from './../models/lines.interface';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, Observable, switchMap } from 'rxjs';
-import { environment } from 'src/environments/environment.prod';
+import { map, Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 import { AppService } from './application.service';
 import { CloseStops, RouteStop } from '../models/stop.interface';
 import { RouteDetails } from './map.service';
