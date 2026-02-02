@@ -1,7 +1,7 @@
 package models
 
 type StopArrivalOasa struct {
-	Btime2     int32 `json:"btime2" oasa:"btime2"`
+	Btime2     int32 `json:"time" oasa:"btime2"`
 	Route_code int32 `json:"route_code" oasa:"route_code"`
 	Veh_code   int32 `json:"veh_code" oasa:"veh_code"`
 }
