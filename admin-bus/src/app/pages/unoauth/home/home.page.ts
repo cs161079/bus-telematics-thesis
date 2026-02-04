@@ -20,7 +20,7 @@ export class HomePage {
 
   login() {
     this.keycloak.login({
-      redirectUri: window.location.origin
+      redirectUri: window.location.origin + "/portal"
     });
   }
 }

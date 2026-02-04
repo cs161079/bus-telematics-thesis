@@ -15,6 +15,6 @@ spec:
     spec:
       containers:
       - name: admin-panel
-        image: cs161079uniwa/admin-portal:0.0.1
+        image: cs161079uniwa/admin-portal:0.0.4
         ports:
         - containerPort: 80 # The port that the container is running on in the cluster

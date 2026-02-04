@@ -53,7 +53,7 @@ spec:
               done
               echo "🟢 Keycloak is ready."
       containers:
-      - image: cs161079uniwa/oasa-server:0.0.1                                          
+      - image: cs161079uniwa/oasa-server:0.0.3                                      
         name: oasa-server
         ports:
         - containerPort: 8082
