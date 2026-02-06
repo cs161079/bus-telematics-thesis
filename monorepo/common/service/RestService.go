@@ -85,7 +85,7 @@ func httpRequest(request *OpswHttpRequest) (*http.Response, error) {
 		return nil, err
 	}
 
-	if request.Headers != nil && len(request.Headers) > 0 {
+	if len(request.Headers) > 0 {
 		for key, value := range request.Headers {
 			req.Header.Set(key, value)
 		}
@@ -102,7 +102,7 @@ func (r restService) OasaRequestApi02(action string) *OasaResponse {
 	var req OpswHttpRequest = OpswHttpRequest{
 		Method:   http.MethodGet,
 		Endpoint: fmt.Sprintf("%s/api/?act=%s", oasaApplicationHost, action),
-		Headers:  map[string]string{"Accept-Encoding": "gzip"},
+		Headers:  map[string]string{"Accept-Encoding": "gzip, deflate"},
 	}
 	bodyBytes, err := internalHttpRequest(req)
 
@@ -113,25 +113,17 @@ func (r restService) OasaRequestApi02(action string) *OasaResponse {
 	// Double decompress
 	gr, err := gzip.NewReader(bytes.NewReader(bodyBytes))
 	if err != nil {
-		panic(err)
+		return &OasaResponse{Error: fmt.Errorf(err.Error()), Data: nil}
+		// panic(err)
 	}
 	decompressedBytes01, err := io.ReadAll(gr)
 	gr.Close()
 	if err != nil {
-		panic(err)
-	}
-
-	gr, err = gzip.NewReader(bytes.NewReader(decompressedBytes01))
-	if err != nil {
-		panic(err)
-	}
-	decompressedBytes, err := io.ReadAll(gr)
-	gr.Close()
-	if err != nil {
-		panic(err)
+		return &OasaResponse{Error: fmt.Errorf(err.Error()), Data: nil}
+		// panic(err)
 	}
 	// Μετατρέπουμε σε string (θα είναι JSON)
-	var decompressedStr = string(decompressedBytes)
+	var decompressedStr = string(decompressedBytes01)
 	decompressedStr = decompressedStr[1 : len(decompressedStr)-2]
 	syncDataLines := strings.Split(decompressedStr, "),(")
 

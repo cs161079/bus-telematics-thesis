@@ -421,62 +421,97 @@ func (s *syncService) SyncData() error {
 	// *********** Κάνουμε get το connection της  βάσης από το Context ************
 	//var dbConnection *gorm.DB = ctx.Value(db.CONNECTIONVAR).(*gorm.DB)
 	// **************************************************************************
-	versionsArr, err := s.uVersionFromOasa()
-	if err != nil {
+	// versionsArr, err := s.uVersionFromOasa()
+	// if err != nil {
+	// 	return err
+	// }
+	// uvServ := s.uVversionService
+	// // routeDetailMustUpdate := false
+	logger.INFO("Fetching data from OASA Server...")
+
+	logger.INFO("Fetch data for lines...")
+	if err := s.syncLines(); err != nil {
 		return err
 	}
-	uvServ := s.uVversionService
-	// routeDetailMustUpdate := false
-	logger.INFO("Fetching data from OASA Server...")
-	for _, rec := range versionsArr {
-		dbRec, err := uvServ.Select(rec.UVersion.Uv_descr)
-		if err != nil {
-			return nil
-		}
 
-		var frServeVers = rec.UVersion.Uv_lastupdatelong
-		if dbRec == nil || frServeVers > dbRec.Uv_lastupdatelong {
-			switch rec.UVersion.Uv_descr {
-			case "LINES":
-				if err := s.syncLines(); err != nil {
-					return err
-				}
-				// Εδώ θα πρέπει να κάνουμε Update την εγγραφή στον πίνακα με το νέο Version.
-				//uvServ.Post(&rec.UVersion)
-			case "ROUTES":
-				if err := s.syncRoutes(); err != nil {
-					return err
-				}
-				// Εδώ θα πρέπει να κάνουμε Update την εγγραφή στον πίνακα με το νέο Version.
-				//uvServ.Post(&rec.UVersion)
-			case "STOPS":
-				if err := s.syncStops(); err != nil {
-					return err
-				}
-				// Εδώ θα πρέπει να κάνουμε Update την εγγραφή στον πίνακα με το νέο Version.
-				//uvServ.Post(&rec.UVersion)
-			case "ROUTE STOPS":
-				if err := s.syncRouteStops(); err != nil {
-					return err
-				}
-				// Εδώ θα πρέπει να κάνουμε Update την εγγραφή στον πίνακα με το νέο Version.
-				//uvServ.Post(&rec.UVersion)
-			case "ROUTE DETAIL":
-				if err := s.syncRouteDetails(); err != nil {
-					return err
-				}
-			case "SCHED_CATS":
-				if err := s.syncScheduleMaster(); err != nil {
-					return err
-				}
-			case "SCHED_ENTRIES":
-				if err := s.syncScheduleTime(); err != nil {
-					return err
-				}
-			}
-
-		}
+	logger.INFO("Fetch data for routes...")
+	if err := s.syncRoutes(); err != nil {
+		return err
 	}
+
+	logger.INFO("Fetch data for stops...")
+	if err := s.syncStops(); err != nil {
+		return err
+	}
+
+	logger.INFO("Fetch data for route stops...")
+	if err := s.syncRouteStops(); err != nil {
+		return err
+	}
+
+	logger.INFO("Fetch data for route details...")
+	if err := s.syncRouteDetails(); err != nil {
+		return err
+	}
+
+	logger.INFO("Fetch data for schedule master...")
+	if err := s.syncScheduleMaster(); err != nil {
+		return err
+	}
+
+	logger.INFO("Fetch data for schedule time...")
+	if err := s.syncScheduleTime(); err != nil {
+		return err
+	}
+	// for _, rec := range versionsArr {
+	// 	dbRec, err := uvServ.Select(rec.UVersion.Uv_descr)
+	// 	if err != nil {
+	// 		return nil
+	// 	}
+
+	// 	var frServeVers = rec.UVersion.Uv_lastupdatelong
+	// 	if dbRec == nil || frServeVers > dbRec.Uv_lastupdatelong {
+	// 		switch rec.UVersion.Uv_descr {
+	// 		case "LINES":
+	// 			if err := s.syncLines(); err != nil {
+	// 				return err
+	// 			}
+	// 			// Εδώ θα πρέπει να κάνουμε Update την εγγραφή στον πίνακα με το νέο Version.
+	// 			//uvServ.Post(&rec.UVersion)
+	// 		case "ROUTES":
+	// 			if err := s.syncRoutes(); err != nil {
+	// 				return err
+	// 			}
+	// 			// Εδώ θα πρέπει να κάνουμε Update την εγγραφή στον πίνακα με το νέο Version.
+	// 			//uvServ.Post(&rec.UVersion)
+	// 		case "STOPS":
+	// 			if err := s.syncStops(); err != nil {
+	// 				return err
+	// 			}
+	// 			// Εδώ θα πρέπει να κάνουμε Update την εγγραφή στον πίνακα με το νέο Version.
+	// 			//uvServ.Post(&rec.UVersion)
+	// 		case "ROUTE STOPS":
+	// 			if err := s.syncRouteStops(); err != nil {
+	// 				return err
+	// 			}
+	// 			// Εδώ θα πρέπει να κάνουμε Update την εγγραφή στον πίνακα με το νέο Version.
+	// 			//uvServ.Post(&rec.UVersion)
+	// 		case "ROUTE DETAIL":
+	// 			if err := s.syncRouteDetails(); err != nil {
+	// 				return err
+	// 			}
+	// 		case "SCHED_CATS":
+	// 			if err := s.syncScheduleMaster(); err != nil {
+	// 				return err
+	// 			}
+	// 		case "SCHED_ENTRIES":
+	// 			if err := s.syncScheduleTime(); err != nil {
+	// 				return err
+	// 			}
+	// 		}
+
+	// 	}
+	// }
 	return nil
 }
 
@@ -496,21 +531,21 @@ func (s *syncService) syncLines() error {
 	logger.INFO("\tFetch lines data...")
 	s.HelpLine = make(map[int32]models.Line)
 	// General Response interface{} to JSON
-	jsonData, err := json.Marshal(response.Data)
-	if err != nil {
-		panic(err.Error())
-	}
-	// JSON to OASA Versions Array
-	var lines []models.Line = make([]models.Line, 0)
-	err = json.Unmarshal(jsonData, &lines)
-	if err != nil {
-		logger.ERROR(err.Error())
-		panic(err.Error())
-	}
+	// jsonData, err := json.Marshal(response.Data)
+	// if err != nil {
+	// 	panic(err.Error())
+	// }
+	// // JSON to OASA Versions Array
+	// var lines []models.Line = make([]models.Line, 0)
+	// err = json.Unmarshal(jsonData, &lines)
+	// if err != nil {
+	// 	logger.ERROR(err.Error())
+	// 	panic(err.Error())
+	// }
 
-	for _, line := range lines {
-		// lineOasa := lineSrv.GetMapper().GenDtLineOasa(ln.(map[string]interface{}))
-		// line := lineSrv.GetMapper().OasaToLine(lineOasa)
+	for _, ln := range response.Data.([]any) {
+		lineOasa := s.lineService.GetMapper().GenDtLineOasa(ln.(map[string]interface{}))
+		line := s.lineService.GetMapper().OasaToLine(lineOasa)
 		line.LineType = models.LINE_TYPE_BUS
 		if len(line.LineID) <= 2 {
 			_, err := utils.StrToInt8(line.LineID)
