@@ -14,7 +14,7 @@ export const AuthGuard: CanActivateFn = (route, state) => {
     console.log("This is route parameter: ", route);
     console.log("This is state parameter: ", state);
     keycloakService.login({
-      redirectUri: window.location.origin + "/portal" + state.url
+      redirectUri: window.location.origin + "/portal"
     });
   }
   return authindicated;
