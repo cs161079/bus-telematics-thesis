@@ -46,7 +46,6 @@ export class OAuthComponent implements OnInit {
       }
     );
     this.loadUserProfile();
-    this.oauthSrv.getRoles();
   }
 
   async loadUserProfile() {

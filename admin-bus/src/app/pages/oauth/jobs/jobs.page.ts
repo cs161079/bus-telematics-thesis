@@ -6,7 +6,6 @@ import { Component, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { Router } from '@angular/router';
-import { PaginationComponent } from '../../../components/pagination/pagination.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { ErrorComponent } from '../../../components/error_component/error.component';

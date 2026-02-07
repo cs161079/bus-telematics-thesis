@@ -62,7 +62,7 @@ export class OAuthService {
   }
 
   logout(): void {
-    this.keycloak.logout(environment.auth_config.end_session_redirect_url);
+    this.keycloak.logout(window.location.origin + environment.keycloak.basePath + "/unoauth/home");
   }
 
   getToken() {

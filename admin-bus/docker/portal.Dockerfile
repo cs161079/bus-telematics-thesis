@@ -2,9 +2,9 @@
 FROM node:18 AS build
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --include=dev
+RUN npm ci
 COPY . .
-RUN npx ng build --configuration production --base-href /portal/
+RUN npx ng build --configuration production
 
 # Stage 2: Serve with Nginx
 FROM nginx:alpine

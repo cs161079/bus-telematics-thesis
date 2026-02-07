@@ -11,14 +11,17 @@ import { environment } from '../environments/environment';
 function initializeKeycloak(keycloak: KeycloakService) {
   return () =>
     keycloak.init({
-      config: {
-        url: 'https://uat.osses.gr/auth',
-        realm: 'oasa-telemat',
-        clientId: 'oasa-client'
-      },
+      config: environment.keycloak,
       initOptions: {
-        onLoad: 'check-sso', // 'login-required' , 'check-sso'
-        silentCheckSsoRedirectUri: environment.auth_config.silent_check_sso_url
+        onLoad: 'check-sso',
+        pkceMethod: 'S256',
+
+        // 🔑 PROD SAFE
+        checkLoginIframe: false,
+        silentCheckSsoRedirectUri:
+          window.location.origin +
+          environment.keycloak.basePath +
+          '/assets/silent-check-sso.html'
       },
       enableBearerInterceptor: true
     });
