@@ -17,6 +17,7 @@ export const routes: Routes = [
           {
             path: 'push-notification',
             canActivate: [RoleGuard],
+            data: { roles: ['oasa-admin'] },
             loadComponent: () => import('./pages/oauth/push-notification/push-notification.component').then(m => m.PushNotificationComponent),
           },
           {

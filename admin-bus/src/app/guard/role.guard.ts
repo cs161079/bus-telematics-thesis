@@ -8,15 +8,21 @@ import { GeneralService } from "../service/general.service";
 })
 export class RoleGuard implements CanActivate {
   constructor(
+    private route: ActivatedRouteSnapshot,
     private authSrv: OAuthService,
     private router: Router,
     private generalSrv: GeneralService,
   ) {}
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): MaybeAsync<GuardResult> {
-    const roles = this.authSrv.getRoles();
-    const isOasaAdmin =roles.includes("oasa-admin"); // Example check, modify as needed
-    if(isOasaAdmin) {
-      return isOasaAdmin;
+    const userRoles = this.authSrv.getRoles();
+    const requiredRoles: string[] = route.data['roles'];
+    if (!requiredRoles || requiredRoles.length === 0) {
+      return true; // no role restriction
+    }
+    const hasRole = requiredRoles.some(role => userRoles.includes(role));
+
+    if(hasRole) {
+      return hasRole;
     } else {
       this.generalSrv.showWarningAlert(`You do not have permission to access ${state.url}.`);
       return this.router.parseUrl('/oauth/capacity');
