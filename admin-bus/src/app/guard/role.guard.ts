@@ -8,7 +8,6 @@ import { GeneralService } from "../service/general.service";
 })
 export class RoleGuard implements CanActivate {
   constructor(
-    private route: ActivatedRouteSnapshot,
     private authSrv: OAuthService,
     private router: Router,
     private generalSrv: GeneralService,

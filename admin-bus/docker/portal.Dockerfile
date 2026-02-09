@@ -2,7 +2,7 @@
 FROM node:18 AS build
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --include=dev
 COPY . .
 RUN npx ng build --configuration production
 

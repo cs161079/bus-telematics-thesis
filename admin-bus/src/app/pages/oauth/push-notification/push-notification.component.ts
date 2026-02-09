@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { FormBuilder, FormsModule, NgForm, ReactiveFormsModule } from "@angular/forms";
+import { FormBuilder, FormsModule, NgForm } from "@angular/forms";
 import { AlertType, NotificationRec } from "../../../models/models.interface";
 import { BackendService } from "../../../service/backend.service";
 import { GeneralService } from "../../../service/general.service";
@@ -25,7 +25,6 @@ export class PushNotificationComponent implements OnInit {
   };
 
   constructor(
-    private formBuilder: FormBuilder,
     private backendService: BackendService,
     private generalService: GeneralService,
     public themeSrv: ThemeService,
